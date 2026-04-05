@@ -1,128 +1,166 @@
-import { useState } from "react";
-import { Search, MapPin, ChevronDown, Bell, Globe, ShoppingBag } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function HomeTab() {
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  // --- 1. CONFIGURACIÓN DEL DEMO DAY (LA LÓGICA) ---
+  const targetDate = new Date("2026-11-07T11:00:00").getTime(); 
+  
+  const [timeLeft, setTimeLeft] = useState({
+    meses: 0, dias: 0, horas: 0, minutos: 0, segundos: 0
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference > 0) {
+        // Cálculo preciso: 1000ms * 60s * 60m * 24h
+        const dayInMs = 1000 * 60 * 60 * 24;
+        const monthInMs = dayInMs * 30.44;
+
+        setTimeLeft({
+          meses: Math.floor(difference / monthInMs),
+          dias: Math.floor((difference % monthInMs) / dayInMs),
+          horas: Math.floor((difference % dayInMs) / (1000 * 60 * 60)),
+          minutos: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          segundos: Math.floor((difference % (1000 * 60)) / 1000),
+        });
+      } else {
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
 
   return (
-    <div className="flex flex-col pb-20 bg-slate-50 min-h-screen">
-      {/* HEADER ESTILO PEDIDOSYA */}
-      <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-30 border-b border-slate-100">
-        <div className="flex items-center justify-between mb-3">
-          <button 
-            onClick={() => setIsAddressModalOpen(true)}
-            className="flex flex-col items-start"
-          >
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Entregar en</span>
-            <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4 text-[#009688]" />
-              <span className="font-bold text-slate-800 text-sm">Tu dirección actual</span>
-              <ChevronDown className="w-4 h-4 text-[#009688]" />
-            </div>
-          </button>
+    // Usamos bg-slate-50 para que el fondo no sea blanco puro y los banners resalten
+    <div className="flex flex-col h-full bg-slate-50 overflow-hidden font-sans relative">
+      
+      {/* --- 2. HEADER: DIRECCIÓN Y NOTIFICACIONES (LO QUE TENÍAS) --- */}
+      <div className="flex items-center justify-between px-6 py-4 bg-white shadow-sm">
+        <div className="flex flex-col">
+          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">ENTREGAR EN</span>
+          <div className="flex items-center gap-1.5 cursor-pointer">
+            <MapPin className="w-4 h-4 text-[#009688]" />
+            <span className="font-bold text-slate-800 text-sm">Tu dirección actual</span>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </div>
+        </div>
+        <button className="p-2.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all">
+          <Bell className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* --- 3. ÁREA SCROLLEABLE DE CONTENIDO --- */}
+      <div className="flex-1 overflow-y-auto pb-28">
+        
+        {/* BUSCADOR (LO QUE TENÍAS) */}
+        <div className="px-6 mt-6">
+          <div className="flex items-center gap-3 bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-inner">
+            <Search className="w-5 h-5 text-slate-400" />
+            <input type="text" placeholder="¿Qué quieres comer hoy?" className="flex-1 bg-transparent text-sm font-medium outline-none text-slate-700" />
+          </div>
+        </div>
+
+        {/* 🚀 BANNER DEMO DAY PICKI (LO NUEVO) */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-6 mt-8 p-5 bg-slate-900 rounded-[32px] shadow-2xl shadow-slate-900/30 border border-white/10 relative overflow-hidden"
+        >
+          {/* Decoración de fondo */}
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#009688] opacity-20 blur-3xl rounded-full" />
           
-          <div className="flex gap-3">
-            <button className="p-2 bg-slate-100 rounded-full relative">
-              <Bell className="w-5 h-5 text-slate-600" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <div className="flex items-center gap-2">
+              <div className="bg-[#009688] p-1.5 rounded-lg shadow-lg shadow-[#009688]/40">
+                <Rocket className="w-3.5 h-3.5 text-white" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] block">Countdown</span>
+                <span className="text-xs font-bold text-white uppercase">DEMO DAY MVP</span>
+              </div>
+            </div>
+            <div className="bg-white/5 px-2 py-1 rounded-md border border-white/10">
+              <span className="text-[9px] font-bold text-[#009688]">7 NOV • 11:00 AM</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 gap-2 relative z-10">
+            {[
+              { label: "Mes", val: timeLeft.meses },
+              { label: "Días", val: timeLeft.dias },
+              { label: "Hs", val: timeLeft.horas },
+              { label: "Min", val: timeLeft.minutos },
+              { label: "Seg", val: timeLeft.segundos },
+            ].map((item, i) => (
+              <div key={i} className="bg-white/5 backdrop-blur-sm rounded-2xl py-3.5 border border-white/5 flex flex-col items-center">
+                <span className="text-2xl font-black text-white tabular-nums tracking-tighter leading-none mb-1">
+                  {String(item.val).padStart(2, '0')}
+                </span>
+                <span className="text-[7px] font-black text-[#009688] uppercase tracking-[0.2em]">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* --- 4. BANNER VERDE "COMER SEGURO" (LO QUE TENÍAS) --- */}
+        <div className="px-6 mt-8">
+          <div className="bg-[#509688] p-6 rounded-[32px] relative overflow-hidden flex items-center justify-between shadow-xl shadow-[#509688]/30">
+            {/* Patrón de fondo (simulado con opacidad) */}
+            <div className="absolute inset-0 opacity-10 flex items-center justify-center">
+              <div className="w-full h-full scale-150 rotate-12" style={{ backgroundImage: 'radial-gradient(#ffffff 2px, transparent 2px)', backgroundSize: '20px 20px' }}></div>
+            </div>
+            
+            <div className="max-w-[70%] relative z-10">
+              <h3 className="text-2xl font-black text-white tracking-tight leading-tight">Comer seguro</h3>
+              <p className="text-white/80 text-xs font-semibold mt-1.5">Explora restaurantes con certificación Picki.</p>
+            </div>
+            {/* Icono de bolsa de fondo (simulado con Lucide) */}
+            <div className="absolute -right-8 -bottom-8 p-12 bg-white/10 rounded-full">
+              <ShoppingBag className="w-20 h-20 text-white/40 rotate-12" />
+            </div>
+          </div>
+        </div>
+
+        {/* BIENVENIDA A AGUSTÍN (LO NUEVO QUE SUMAMOS) */}
+        <div className="px-8 mt-8">
+          <h2 className="text-2xl font-black text-slate-800 tracking-tight leading-tight">
+            ¡Hola, Agustín! 👋
+          </h2>
+          <p className="text-slate-400 text-sm font-medium">Estamos a tiempo de cambiar el mundo.</p>
+        </div>
+
+        {/* --- 5. SECCIÓN CATEGORÍAS (LO QUE TENÍAS) --- */}
+        <div className="px-6 mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-bold text-slate-900">Categorías</h4>
+            <button className="flex items-center gap-1 text-[11px] font-bold text-[#009688]">
+              Ver todas <ChevronRight className="w-3 h-3" />
             </button>
           </div>
-        </div>
-
-        {/* BUSCADOR */}
-        <div className="relative group">
-          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            <Search className="w-5 h-5 text-slate-400 group-focus-within:text-[#009688] transition-colors" />
-          </div>
-          <input
-            type="text"
-            placeholder="¿Qué quieres comer hoy?"
-            className="w-full bg-slate-100 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#009688]/20 focus:bg-white transition-all outline-none"
-          />
-        </div>
-      </div>
-
-      {/* CONTENIDO DEL HOME (RELLENO) */}
-      <div className="p-4 space-y-6">
-        {/* Banner Promocional */}
-        <div className="w-full h-40 bg-[#009688] rounded-2xl p-6 text-white relative overflow-hidden shadow-lg shadow-[#009688]/20">
-          <div className="relative z-10">
-            <h3 className="text-xl font-bold mb-1">Comer seguro</h3>
-            <p className="text-sm opacity-90 max-w-[180px]">Explora restaurantes con certificación Picki.</p>
-          </div>
-          <ShoppingBag className="absolute -right-4 -bottom-4 w-32 h-32 opacity-20 rotate-12" />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg text-slate-800">Categorías</h2>
-          <button className="text-[#009688] text-sm font-semibold">Ver todas</button>
-        </div>
-        
-        {/* Aquí irían tus tarjetas de comida */}
-        <div className="grid grid-cols-2 gap-4">
-            <div className="h-24 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center font-medium text-slate-500">Restaurantes</div>
-            <div className="h-24 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center font-medium text-slate-500">Supermercado</div>
-        </div>
-      </div>
-
-      {/* MODAL DE DIRECCIÓN (BOTTOM SHEET) */}
-      <AnimatePresence>
-        {isAddressModalOpen && (
-          <>
-            {/* Fondo oscuro */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsAddressModalOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40"
-            />
-            
-            {/* Panel que sube */}
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-x-0 bottom-0 bg-white rounded-t-[32px] z-50 p-6 pb-10"
-            >
-              <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6" />
-              
-              <h3 className="text-xl font-bold text-slate-800 mb-6">Elige tu dirección</h3>
-              
-              <div className="space-y-4">
-                <button className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#009688]/5 border border-[#009688]/10 text-left">
-                  <div className="w-10 h-10 rounded-full bg-[#009688] flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-800">Ubicación actual</p>
-                    <p className="text-xs text-slate-500">Usar el GPS de mi dispositivo</p>
-                  </div>
-                </button>
-
-                <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-slate-100 text-left transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                    <Globe className="w-5 h-5 text-slate-400" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-800">Cambiar de país</p>
-                    <p className="text-xs text-slate-500">Argentina</p>
-                  </div>
-                </button>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: "Restaurantes", icon: UtensilsCrossed, color: "bg-[#009688]/10 text-[#009688]" },
+              { label: "Supermercado", icon: ShoppingBag, color: "bg-slate-100 text-slate-600" }
+            ].map((cat, i) => (
+              <div key={i} className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center gap-4 shadow-sm active:scale-95 transition-all cursor-pointer">
+                <div className={`p-3 rounded-xl ${cat.color}`}>
+                  <cat.icon className="w-6 h-6" />
+                </div>
+                <span className="font-bold text-sm text-slate-800 flex-1 text-center pr-6">
+                  {cat.label}
+                </span>
               </div>
-
-              <button 
-                onClick={() => setIsAddressModalOpen(false)}
-                className="w-full mt-8 py-4 bg-slate-100 text-slate-800 font-bold rounded-xl"
-              >
-                Cerrar
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
