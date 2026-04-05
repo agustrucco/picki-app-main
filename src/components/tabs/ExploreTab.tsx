@@ -39,9 +39,10 @@ export default function ExploreTab() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden font-sans">
+    /* FIJATE ACÁ: Cambiamos h-screen por h-[calc(100vh-80px)] para dejar espacio al banner */
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-slate-50 overflow-hidden font-sans relative">
       
-      {/* 1. HEADER (Flotante) */}
+      {/* 1. HEADER (Buscador y Selector) */}
       <div className="absolute top-4 inset-x-4 z-[1000] space-y-3 pointer-events-none">
         <div className="flex gap-2 pointer-events-auto">
           <div className="flex-1 bg-white rounded-2xl shadow-xl border border-slate-100 flex items-center px-4 py-3">
@@ -65,9 +66,10 @@ export default function ExploreTab() {
         </div>
       </div>
 
-      {/* 2. CONTENIDO (Aquí aplicamos el fix de scroll) */}
-      <div className="flex-1 relative overflow-hidden">
+      {/* 2. CONTENIDO */}
+      <div className="flex-1 relative">
         {viewMode === "map" ? (
+          /* FIX: El mapa ahora ocupa solo el espacio disponible del contenedor padre */
           <MapContainer center={mapCenter} zoom={14} zoomControl={false} style={{ height: '100%', width: '100%' }}>
             <ChangeView center={mapCenter} />
             <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
@@ -85,44 +87,31 @@ export default function ExploreTab() {
             ))}
           </MapContainer>
         ) : (
-          /* --- EL FIX: absolute inset-0 con overflow-y-auto --- */
-          <div className="absolute inset-0 pt-36 pb-24 px-4 overflow-y-auto bg-slate-50 scrollbar-hide">
-            <div className="space-y-3 pb-10">
+          /* LISTA CON SCROLL INDEPENDIENTE */
+          <div className="absolute inset-0 pt-36 pb-10 px-4 overflow-y-auto bg-slate-50">
+            <div className="space-y-3">
               {filteredPlaces.map(place => (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  key={place.id} 
-                  className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex gap-4 items-center"
-                >
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={place.id} className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex gap-4 items-center">
                   <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
                     <img src={place.img} className="w-full h-full object-cover" alt={place.name} />
                   </div>
-
                   <div className="flex-1 flex flex-col justify-between h-24 py-0.5">
-                    <div>
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-bold text-slate-800 text-[13px] leading-tight line-clamp-1">{place.name}</h4>
-                        <span className="text-[8px] bg-[#009688]/10 text-[#009688] px-2 py-0.5 rounded-md font-black uppercase tracking-tighter border border-[#009688]/20">
-                          {place.tag}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 line-clamp-1 mt-1 font-medium italic">{place.info}</p>
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-bold text-slate-800 text-[13px] leading-tight line-clamp-1">{place.name}</h4>
+                      <span className="text-[8px] bg-[#009688]/10 text-[#009688] px-2 py-0.5 rounded-md font-black uppercase border border-[#009688]/20">{place.tag}</span>
                     </div>
-
+                    <p className="text-[11px] text-slate-400 line-clamp-1 font-medium italic">{place.info}</p>
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-0.5">
                           <Star className="w-3 h-3 text-yellow-400 fill-current" />
                           <span className="text-[11px] font-bold text-slate-700">{place.rating}</span>
                         </div>
-                        <div className="flex items-center gap-0.5 text-slate-400">
-                          <MapPin className="w-3 h-3" />
-                          <span className="text-[10px] font-bold">{place.distance}</span>
+                        <div className="flex items-center gap-0.5 text-slate-400 font-bold text-[10px]">
+                          <MapPin className="w-3 h-3" /> {place.distance}
                         </div>
-                        <div className="text-[10px] font-bold tracking-widest">
-                          <span className="text-slate-800">{"$".repeat(place.price)}</span>
-                          <span className="text-slate-200">{"$".repeat(5 - place.price)}</span>
+                        <div className="text-[10px] font-bold tracking-widest text-slate-800">
+                          {"$".repeat(place.price)}<span className="text-slate-200">{"$".repeat(5 - place.price)}</span>
                         </div>
                       </div>
                       <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">{place.barrio}</span>
@@ -137,12 +126,12 @@ export default function ExploreTab() {
 
       {/* 3. BOTÓN GPS */}
       {viewMode === "map" && (
-        <button onClick={handleGPS} className="absolute bottom-24 right-6 p-4 bg-[#009688] rounded-full shadow-2xl text-white z-[1001] active:scale-90 transition-all shadow-[#009688]/40 pointer-events-auto">
+        <button onClick={handleGPS} className="absolute bottom-6 right-6 p-4 bg-[#009688] rounded-full shadow-2xl text-white z-[1001] active:scale-90 transition-all shadow-[#009688]/40 pointer-events-auto">
           <Crosshair className="w-6 h-6" />
         </button>
       )}
 
-      {/* 4. FILTROS */}
+      {/* 4. FILTROS (MODAL) */}
       <AnimatePresence>
         {showFilters && (
           <>
@@ -155,16 +144,6 @@ export default function ExploreTab() {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">¿Qué buscás?</p>
                   <div className="flex flex-wrap gap-2">
                     {["Todos", "Restaurante", "Cafetería"].map(f => (
-                      <button key={f} onClick={() => setActiveFilter(f)} className={`px-5 py-2.5 rounded-2xl text-xs font-bold border-2 transition-all ${activeFilter === f ? "bg-[#009688] text-white border-[#009688] shadow-md shadow-[#009688]/20" : "bg-white text-slate-500 border-slate-100"}`}>
-                        {f}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Seguridad Alimentaria</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["Sin TACC", "Vegano", "Certificado", "Opciones"].map(f => (
                       <button key={f} onClick={() => setActiveFilter(f)} className={`px-5 py-2.5 rounded-2xl text-xs font-bold border-2 transition-all ${activeFilter === f ? "bg-[#009688] text-white border-[#009688] shadow-md shadow-[#009688]/20" : "bg-white text-slate-500 border-slate-100"}`}>
                         {f}
                       </button>
