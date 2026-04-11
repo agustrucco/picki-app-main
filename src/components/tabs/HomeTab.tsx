@@ -1,8 +1,26 @@
 import { useState, useEffect } from "react";
-import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag } from "lucide-react";
+import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag, Star, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
+import { MOCK_RESTAURANTS } from "@/data/mockRestaurants";
 
 export default function HomeTab() {
+  // --- LECTURA DE DATOS DEL ONBOARDING (SIMULACIÓN PARA EL MVP) ---
+  // Lee de localStorage, o usa valores por defecto si está vacío
+  const userName = localStorage.getItem("picki_user_name") || "Agustín";
+  const userDiet = localStorage.getItem("picki_user_diet") || "Libre de Gluten";
+
+  // Filtramos la base de datos falsa según la dieta elegida
+  const recommendedRestaurants = MOCK_RESTAURANTS.filter((r) => {
+    const typeLower = r.type.toLowerCase();
+    if (userDiet === "Libre de Gluten") return typeLower.includes("gluten") || typeLower.includes("tacc");
+    if (userDiet === "Vegano") return typeLower.includes("vegan") || typeLower.includes("plant based");
+    if (userDiet === "Kosher") return typeLower.includes("kosher");
+    return true; // Si es otra dieta, mostramos todo
+  });
+
+  const carouselItems = recommendedRestaurants.length > 0 ? recommendedRestaurants.slice(0, 5) : MOCK_RESTAURANTS.slice(0, 5);
+  const listItems = MOCK_RESTAURANTS.filter(r => !carouselItems.find(c => c.id === r.id)); // El resto para la lista vertical
+
   // --- 1. CONFIGURACIÓN DEL DEMO DAY (LA LÓGICA) ---
   const targetDate = new Date("2026-11-07T11:00:00").getTime(); 
   
@@ -130,7 +148,7 @@ export default function HomeTab() {
         {/* BIENVENIDA A AGUSTÍN (LO NUEVO QUE SUMAMOS) */}
         <div className="px-8 mt-8">
           <h2 className="text-2xl font-black text-slate-800 tracking-tight leading-tight">
-            ¡Hola, Agustín! 👋
+            ¡Hola, {userName}! 👋
           </h2>
           <p className="text-slate-400 text-sm font-medium">Estamos a tiempo de cambiar el mundo.</p>
         </div>
@@ -156,6 +174,64 @@ export default function HomeTab() {
                 <span className="font-bold text-sm text-slate-800 flex-1 text-center pr-6">
                   {cat.label}
                 </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* --- 6. RESTAURANTES RECOMENDADOS (CARRUSEL HORIZONTAL) --- */}
+        <div className="mt-10 pl-6">
+          <div className="flex items-center justify-between pr-6 mb-4">
+            <div className="flex flex-col">
+              <h4 className="text-lg font-bold text-slate-900">Recomendados para ti</h4>
+              <span className="text-xs font-bold text-[#009688]">100% {userDiet}</span>
+            </div>
+            <button className="flex items-center gap-1 text-[11px] font-bold text-[#009688]">
+              Ver más <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-4 pr-6 snap-x [&::-webkit-scrollbar]:hidden">
+            {carouselItems.map((restaurant) => (
+              <div key={restaurant.id} className="min-w-[240px] bg-white rounded-3xl p-3 border border-slate-100 shadow-sm snap-start">
+                <div className="relative">
+                  <img src={restaurant.image} alt={restaurant.name} className="w-full h-32 object-cover rounded-2xl mb-3" />
+                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <span className="text-[10px] font-bold text-slate-700">{restaurant.rating}</span>
+                  </div>
+                </div>
+                <h3 className="font-bold text-slate-900 text-base leading-tight mb-1">{restaurant.name}</h3>
+                <div className="flex items-center gap-1.5 text-[#009688]">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span className="text-xs font-bold">{restaurant.type}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* --- 7. TODOS LOS RESTAURANTES (LISTA VERTICAL) --- */}
+        <div className="px-6 mt-6 pb-8">
+          <h4 className="text-lg font-bold text-slate-900 mb-4">Cerca tuyo</h4>
+          <div className="flex flex-col gap-4">
+            {listItems.map((restaurant) => (
+              <div key={restaurant.id} className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex gap-4">
+                <img src={restaurant.image} alt={restaurant.name} className="w-24 h-24 rounded-xl object-cover" />
+                <div className="flex-1 py-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-slate-900 leading-tight">{restaurant.name}</h3>
+                    <div className="flex items-center gap-1 bg-amber-50 px-1.5 py-0.5 rounded text-amber-600">
+                      <Star className="w-3 h-3 fill-current" />
+                      <span className="text-[10px] font-bold">{restaurant.rating}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-[#009688] mb-2">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span className="text-xs font-bold">{restaurant.type}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-medium">A {(Math.random() * 5 + 0.5).toFixed(1)} km de tu ubicación</p>
+                </div>
               </div>
             ))}
           </div>

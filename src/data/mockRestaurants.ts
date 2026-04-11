@@ -1,0 +1,32 @@
+const IMAGES = [
+  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80",
+  "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
+  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80",
+  "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80",
+];
+
+export const MOCK_RESTAURANTS = [
+  { id: 1, name: "Sintaxis Palermo", type: "100% Libre de Gluten", position: [-34.5885, -58.4305] as [number, number], rating: 4.8, image: IMAGES[0] },
+  { id: 2, name: "Vegan & Safe", type: "Vegano / Sin Lácteos", position: [-34.5912, -58.4332] as [number, number], rating: 4.6, image: IMAGES[1] },
+  { id: 3, name: "Kosher Deli", type: "Kosher Certificado", position: [-34.5945, -58.4280] as [number, number], rating: 4.9, image: IMAGES[2] },
+  { id: 4, name: "Bio Solo Orgánico", type: "Orgánico / Vegano", position: [-34.5832, -58.4350] as [number, number], rating: 4.7, image: IMAGES[3] },
+  { id: 5, name: "La Arepería", type: "Libre de Gluten", position: [-34.5890, -58.4210] as [number, number], rating: 4.5, image: IMAGES[4] },
+  { id: 6, name: "Artemisia", type: "Vegetariano", position: [-34.5920, -58.4250] as [number, number], rating: 4.8, image: IMAGES[0] },
+  { id: 7, name: "Let it V", type: "100% Plant Based", position: [-34.5850, -58.4380] as [number, number], rating: 4.9, image: IMAGES[1] },
+  { id: 8, name: "Sacro", type: "Plant Based / Alta Cocina", position: [-34.5810, -58.4410] as [number, number], rating: 4.8, image: IMAGES[2] },
+  { id: 9, name: "Donnet", type: "Hongos / Vegano", position: [-34.5980, -58.4450] as [number, number], rating: 4.6, image: IMAGES[3] },
+  { id: 10, name: "Buenos Aires Verde", type: "Orgánico / Crudivegano", position: [-34.5845, -58.4320] as [number, number], rating: 4.7, image: IMAGES[4] },
+  { id: 11, name: "Kensho", type: "Kosher", position: [-34.5905, -58.4310] as [number, number], rating: 4.5, image: IMAGES[0] },
+  { id: 12, name: "Loving Hut", type: "Vegano", position: [-34.5960, -58.4200] as [number, number], rating: 4.4, image: IMAGES[1] },
+  { id: 13, name: "Mudrá", type: "Plant Based", position: [-34.5990, -58.4350] as [number, number], rating: 4.8, image: IMAGES[2] },
+  { id: 14, name: "Estilo Veggie", type: "Vegano / Sin Gluten", position: [-34.5870, -58.4400] as [number, number], rating: 4.6, image: IMAGES[3] },
+  { id: 15, name: "Casa Munay", type: "Vegetariano", position: [-34.5820, -58.4280] as [number, number], rating: 4.5, image: IMAGES[4] },
+  { id: 16, name: "B-Fresh", type: "Saludable / Sin TACC", position: [-34.5895, -58.4190] as [number, number], rating: 4.7, image: IMAGES[0] },
+  { id: 17, name: "Veganius", type: "Vegano", position: [-34.5935, -58.4390] as [number, number], rating: 4.6, image: IMAGES[1] },
+  { id: 18, name: "Sattva", type: "Vegetariano", position: [-34.5950, -58.4250] as [number, number], rating: 4.5, image: IMAGES[2] },
+  { id: 19, name: "Naturaleza Sabia", type: "Vegetariano / Vegano", position: [-34.5910, -58.4380] as [number, number], rating: 4.7, image: IMAGES[3] },
+  { id: 20, name: "Vita", type: "Vegano", position: [-34.5860, -58.4260] as [number, number], rating: 4.6, image: IMAGES[4] },
+  { id: 21, name: "Green Factory", type: "Fast Food Vegano", position: [-34.5975, -58.4310] as [number, number], rating: 4.4, image: IMAGES[0] },
+  { id: 22, name: "La Reverde", type: "Parrilla Vegana", position: [-34.5940, -58.4420] as [number, number], rating: 4.8, image: IMAGES[1] },
+];
