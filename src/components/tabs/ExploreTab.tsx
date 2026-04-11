@@ -1,163 +1,170 @@
 import { useState } from "react";
-import { Search, SlidersHorizontal, Map as MapIcon, List, Crosshair, Star, MapPin } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import { restaurantsData } from "@/data/places";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import { Search, Star, ShieldCheck, Map as MapIcon, List, Filter, LocateFixed } from "lucide-react";
+import { renderToStaticMarkup } from "react-dom/server";
 
-const pickiMarker = new L.DivIcon({
-  className: 'custom-div-icon',
-  html: `<div style="background-color: #009688; width: 34px; height: 34px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); margin-left: -17px; margin-top: -34px;">
-          <div style="transform: rotate(45deg); color: white; font-size: 16px;">📍</div>
-         </div>`,
-  iconSize: [34, 34],
-  iconAnchor: [17, 34],
+const pickiMarkerIcon = L.divIcon({
+  html: renderToStaticMarkup(
+    <div style={{ backgroundColor: '#009688', color: 'white', padding: '6px', borderRadius: '9999px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)', border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+    </div>
+  ),
+  className: "", // Quita las clases por defecto de Leaflet para usar las nuestras
+  iconSize: [36, 36],
+  iconAnchor: [18, 36],
+  popupAnchor: [0, -36],
 });
 
-function ChangeView({ center }: { center: [number, number] }) {
+// 22 Restaurantes simulados
+const IMAGES = [
+  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80",
+  "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
+  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80",
+  "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&q=80",
+];
+
+const MOCK_RESTAURANTS = [
+  { id: 1, name: "Sintaxis Palermo", type: "100% Libre de Gluten", position: [-34.5885, -58.4305] as [number, number], rating: 4.8, image: IMAGES[0] },
+  { id: 2, name: "Vegan & Safe", type: "Vegano / Sin Lácteos", position: [-34.5912, -58.4332] as [number, number], rating: 4.6, image: IMAGES[1] },
+  { id: 3, name: "Kosher Deli", type: "Kosher Certificado", position: [-34.5945, -58.4280] as [number, number], rating: 4.9, image: IMAGES[2] },
+  { id: 4, name: "Bio Solo Orgánico", type: "Orgánico / Vegano", position: [-34.5832, -58.4350] as [number, number], rating: 4.7, image: IMAGES[3] },
+  { id: 5, name: "La Arepería", type: "Libre de Gluten", position: [-34.5890, -58.4210] as [number, number], rating: 4.5, image: IMAGES[4] },
+  { id: 6, name: "Artemisia", type: "Vegetariano", position: [-34.5920, -58.4250] as [number, number], rating: 4.8, image: IMAGES[0] },
+  { id: 7, name: "Let it V", type: "100% Plant Based", position: [-34.5850, -58.4380] as [number, number], rating: 4.9, image: IMAGES[1] },
+  { id: 8, name: "Sacro", type: "Plant Based / Alta Cocina", position: [-34.5810, -58.4410] as [number, number], rating: 4.8, image: IMAGES[2] },
+  { id: 9, name: "Donnet", type: "Hongos / Vegano", position: [-34.5980, -58.4450] as [number, number], rating: 4.6, image: IMAGES[3] },
+  { id: 10, name: "Buenos Aires Verde", type: "Orgánico / Crudivegano", position: [-34.5845, -58.4320] as [number, number], rating: 4.7, image: IMAGES[4] },
+  { id: 11, name: "Kensho", type: "Kosher", position: [-34.5905, -58.4310] as [number, number], rating: 4.5, image: IMAGES[0] },
+  { id: 12, name: "Loving Hut", type: "Vegano", position: [-34.5960, -58.4200] as [number, number], rating: 4.4, image: IMAGES[1] },
+  { id: 13, name: "Mudrá", type: "Plant Based", position: [-34.5990, -58.4350] as [number, number], rating: 4.8, image: IMAGES[2] },
+  { id: 14, name: "Estilo Veggie", type: "Vegano / Sin Gluten", position: [-34.5870, -58.4400] as [number, number], rating: 4.6, image: IMAGES[3] },
+  { id: 15, name: "Casa Munay", type: "Vegetariano", position: [-34.5820, -58.4280] as [number, number], rating: 4.5, image: IMAGES[4] },
+  { id: 16, name: "B-Fresh", type: "Saludable / Sin TACC", position: [-34.5895, -58.4190] as [number, number], rating: 4.7, image: IMAGES[0] },
+  { id: 17, name: "Veganius", type: "Vegano", position: [-34.5935, -58.4390] as [number, number], rating: 4.6, image: IMAGES[1] },
+  { id: 18, name: "Sattva", type: "Vegetariano", position: [-34.5950, -58.4250] as [number, number], rating: 4.5, image: IMAGES[2] },
+  { id: 19, name: "Naturaleza Sabia", type: "Vegetariano / Vegano", position: [-34.5910, -58.4380] as [number, number], rating: 4.7, image: IMAGES[3] },
+  { id: 20, name: "Vita", type: "Vegano", position: [-34.5860, -58.4260] as [number, number], rating: 4.6, image: IMAGES[4] },
+  { id: 21, name: "Green Factory", type: "Fast Food Vegano", position: [-34.5975, -58.4310] as [number, number], rating: 4.4, image: IMAGES[0] },
+  { id: 22, name: "La Reverde", type: "Parrilla Vegana", position: [-34.5940, -58.4420] as [number, number], rating: 4.8, image: IMAGES[1] },
+];
+
+// Componente utilitario para manejar la geolocalización desde el mapa
+function LocationButton() {
   const map = useMap();
-  map.setView(center, 15);
-  return null;
+  return (
+    <button
+      onClick={() => {
+        map.locate().on("locationfound", function (e) {
+          map.flyTo(e.latlng, 16);
+        });
+      }}
+      className="absolute bottom-6 right-4 z-[1000] bg-white p-3.5 rounded-full shadow-lg border border-slate-100 text-slate-700 active:scale-95 transition-all"
+    >
+      <LocateFixed className="w-5 h-5" />
+    </button>
+  );
 }
 
 export default function ExploreTab() {
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
-  const [showFilters, setShowFilters] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("Todos");
-  const [mapCenter, setMapCenter] = useState<[number, number]>([-34.5833, -58.4333]);
-
-  const filteredPlaces = restaurantsData.filter(place => 
-    activeFilter === "Todos" || place.tag === activeFilter || place.type === activeFilter
-  );
-
-  const handleGPS = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setMapCenter([pos.coords.latitude, pos.coords.longitude]);
-      });
-    }
-  };
+  // Coordenadas centrales (Ej: Palermo, Buenos Aires)
+  const center: [number, number] = [-34.5900, -58.4300];
 
   return (
-    /* FIJATE ACÁ: Cambiamos h-screen por h-[calc(100vh-80px)] para dejar espacio al banner */
-    <div className="flex flex-col h-[calc(100vh-80px)] bg-slate-50 overflow-hidden font-sans relative">
+    <div className="relative flex flex-col h-screen bg-slate-50">
       
-      {/* 1. HEADER (Buscador y Selector) */}
-      <div className="absolute top-4 inset-x-4 z-[1000] space-y-3 pointer-events-none">
-        <div className="flex gap-2 pointer-events-auto">
-          <div className="flex-1 bg-white rounded-2xl shadow-xl border border-slate-100 flex items-center px-4 py-3">
-            <Search className="w-5 h-5 text-slate-400 mr-2" />
-            <input type="text" placeholder="¿Qué comemos hoy?" className="bg-transparent border-none outline-none text-sm w-full font-medium" />
-          </div>
-          <button onClick={() => setShowFilters(true)} className="bg-white p-3.5 rounded-2xl shadow-xl border border-slate-100 text-[#009688]">
-            <SlidersHorizontal className="w-6 h-6" />
-          </button>
+      {/* BARRA SUPERIOR: Buscador y Filtros */}
+      <div className="absolute top-6 left-4 right-4 z-[1000] flex gap-2">
+        <div className="flex-1 flex items-center gap-3 bg-white px-5 py-3.5 rounded-2xl shadow-lg border border-slate-100">
+          <Search className="w-5 h-5 text-slate-400" />
+          <input 
+            type="text" 
+            placeholder="Buscar zonas o restaurantes..." 
+            className="flex-1 bg-transparent text-sm font-medium outline-none text-slate-700 placeholder:text-slate-400 w-full" 
+          />
         </div>
-
-        <div className="flex justify-center pointer-events-auto">
-          <div className="bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-xl border border-white flex gap-1">
-            <button onClick={() => setViewMode("map")} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${viewMode === "map" ? "bg-[#009688] text-white shadow-lg" : "text-slate-500"}`}>
-              <MapIcon className="w-4 h-4" /> Mapa
-            </button>
-            <button onClick={() => setViewMode("list")} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${viewMode === "list" ? "bg-[#009688] text-white shadow-lg" : "text-slate-500"}`}>
-              <List className="w-4 h-4" /> Lista
-            </button>
-          </div>
-        </div>
+        <button className="bg-white px-4 rounded-2xl shadow-lg border border-slate-100 text-slate-700 flex items-center justify-center active:scale-95 transition-all">
+          <Filter className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* 2. CONTENIDO */}
-      <div className="flex-1 relative">
+      {/* CONTENIDO PRINCIPAL: Mapa o Listado */}
+      <div className="flex-1 w-full h-full relative pb-20">
         {viewMode === "map" ? (
-          /* FIX: El mapa ahora ocupa solo el espacio disponible del contenedor padre */
-          <MapContainer center={mapCenter} zoom={14} zoomControl={false} style={{ height: '100%', width: '100%' }}>
-            <ChangeView center={mapCenter} />
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
-            <ZoomControl position="bottomright" />
-            {filteredPlaces.map(place => (
-              <Marker key={place.id} position={place.pos} icon={pickiMarker}>
-                <Popup className="custom-popup">
-                  <div className="w-40 rounded-lg overflow-hidden">
-                    <img src={place.img} className="w-full h-20 object-cover rounded-md mb-2" />
-                    <h4 className="font-bold text-xs">{place.type === "Cafetería" ? "☕" : "🍴"} {place.name}</h4>
-                    <p className="text-[9px] text-[#009688] font-bold uppercase">{place.tag}</p>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-        ) : (
-          /* LISTA CON SCROLL INDEPENDIENTE */
-          <div className="absolute inset-0 pt-36 pb-10 px-4 overflow-y-auto bg-slate-50">
-            <div className="space-y-3">
-              {filteredPlaces.map(place => (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={place.id} className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex gap-4 items-center">
-                  <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
-                    <img src={place.img} className="w-full h-full object-cover" alt={place.name} />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-between h-24 py-0.5">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-slate-800 text-[13px] leading-tight line-clamp-1">{place.name}</h4>
-                      <span className="text-[8px] bg-[#009688]/10 text-[#009688] px-2 py-0.5 rounded-md font-black uppercase border border-[#009688]/20">{place.tag}</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 line-clamp-1 font-medium italic">{place.info}</p>
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-0.5">
-                          <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                          <span className="text-[11px] font-bold text-slate-700">{place.rating}</span>
+          <div className="w-full h-full z-0">
+            <MapContainer center={center} zoom={15} zoomControl={false} style={{ height: "100%", width: "100%" }}>
+              <TileLayer
+                attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              />
+              <LocationButton />
+              {MOCK_RESTAURANTS.map((restaurant) => (
+                <Marker key={restaurant.id} position={restaurant.position} icon={pickiMarkerIcon}>
+                  <Popup className="custom-popup">
+                    <div className="w-[200px] -m-3 overflow-hidden rounded-xl bg-white shadow-sm">
+                      <img src={restaurant.image} alt={restaurant.name} className="w-full h-28 object-cover" />
+                      <div className="p-3">
+                        <h3 className="font-bold text-slate-900 text-sm leading-tight mb-1">{restaurant.name}</h3>
+                        <div className="flex items-center gap-1 text-[#009688] mb-3">
+                          <ShieldCheck className="w-3 h-3" />
+                          <span className="text-[10px] font-bold tracking-wide">{restaurant.type}</span>
                         </div>
-                        <div className="flex items-center gap-0.5 text-slate-400 font-bold text-[10px]">
-                          <MapPin className="w-3 h-3" /> {place.distance}
-                        </div>
-                        <div className="text-[10px] font-bold tracking-widest text-slate-800">
-                          {"$".repeat(place.price)}<span className="text-slate-200">{"$".repeat(5 - place.price)}</span>
-                        </div>
+                        <button className="w-full bg-[#009688] text-white text-xs font-bold py-2 rounded-lg active:scale-95 transition-all">Ver lugar</button>
                       </div>
-                      <span className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">{place.barrio}</span>
                     </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+        ) : (
+          // LISTADO DE RESTAURANTES
+          <div className="w-full h-full pt-24 px-4 pb-28 overflow-y-auto">
+            <h2 className="text-lg font-bold text-slate-900 mb-4 px-1">22 lugares cerca tuyo</h2>
+            <div className="flex flex-col gap-4">
+              {MOCK_RESTAURANTS.map((restaurant) => (
+                <div key={restaurant.id} className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex gap-4">
+                  <img src={restaurant.image} alt={restaurant.name} className="w-24 h-24 rounded-xl object-cover" />
+                  <div className="flex-1 py-1">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-bold text-slate-900 leading-tight">{restaurant.name}</h3>
+                      <div className="flex items-center gap-1 bg-amber-50 px-1.5 py-0.5 rounded text-amber-600">
+                        <Star className="w-3 h-3 fill-current" />
+                        <span className="text-[10px] font-bold">{restaurant.rating}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-[#009688] mb-2">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span className="text-xs font-bold">{restaurant.type}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-medium">A 1.2 km de tu ubicación</p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
         )}
       </div>
 
-      {/* 3. BOTÓN GPS */}
-      {viewMode === "map" && (
-        <button onClick={handleGPS} className="absolute bottom-6 right-6 p-4 bg-[#009688] rounded-full shadow-2xl text-white z-[1001] active:scale-90 transition-all shadow-[#009688]/40 pointer-events-auto">
-          <Crosshair className="w-6 h-6" />
+      {/* BOTÓN FLOTANTE: Alternar Mapa/Listado */}
+      <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-[1000]">
+        <button 
+          onClick={() => setViewMode(prev => prev === "map" ? "list" : "map")}
+          className="bg-slate-900 text-white px-5 py-3 rounded-full shadow-xl flex items-center gap-2 font-medium text-sm hover:scale-105 active:scale-95 transition-all"
+        >
+          {viewMode === "map" ? (
+            <>
+              <List className="w-4 h-4" /> Ver listado
+            </>
+          ) : (
+            <>
+              <MapIcon className="w-4 h-4" /> Ver mapa
+            </>
+          )}
         </button>
-      )}
-
-      {/* 4. FILTROS (MODAL) */}
-      <AnimatePresence>
-        {showFilters && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 bg-black/40 z-[2000] backdrop-blur-sm" />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25 }} className="fixed inset-x-0 bottom-0 bg-white rounded-t-[40px] z-[2001] p-8 pb-12 shadow-2xl">
-              <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8" />
-              <h3 className="text-xl font-bold mb-6 italic text-slate-800">Filtrar experiencias</h3>
-              <div className="space-y-8">
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">¿Qué buscás?</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["Todos", "Restaurante", "Cafetería"].map(f => (
-                      <button key={f} onClick={() => setActiveFilter(f)} className={`px-5 py-2.5 rounded-2xl text-xs font-bold border-2 transition-all ${activeFilter === f ? "bg-[#009688] text-white border-[#009688] shadow-md shadow-[#009688]/20" : "bg-white text-slate-500 border-slate-100"}`}>
-                        {f}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <button onClick={() => setShowFilters(false)} className="w-full py-5 bg-[#009688] text-white font-black rounded-2xl shadow-xl shadow-[#009688]/30">
-                  VER {filteredPlaces.length} OPCIONES
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }
