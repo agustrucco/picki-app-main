@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag, Star, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
+import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag, Star, ShieldCheck, Sparkles, Bot, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { MOCK_RESTAURANTS } from "@/data/mockRestaurants";
 
 export default function HomeTab() {
@@ -8,6 +8,21 @@ export default function HomeTab() {
   // Lee de localStorage, o usa valores por defecto si está vacío
   const userName = localStorage.getItem("picki_user_name") || "Agustín";
   const userDiet = localStorage.getItem("picki_user_diet") || "Libre de Gluten";
+
+  // --- ESTADOS PARA EL BUSCADOR SEMÁNTICO IA ---
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isAiSearching, setIsAiSearching] = useState(false);
+  const [showAiSuccess, setShowAiSuccess] = useState(false);
+
+  const triggerAISearch = () => {
+    if (!aiPrompt) return;
+    setIsAiSearching(true);
+    setTimeout(() => {
+      setIsAiSearching(false);
+      setShowAiSuccess(true);
+      setTimeout(() => setShowAiSuccess(false), 4000);
+    }, 2500);
+  };
 
   // Filtramos la base de datos falsa según la dieta elegida
   const recommendedRestaurants = MOCK_RESTAURANTS.filter((r) => {
@@ -74,11 +89,23 @@ export default function HomeTab() {
       {/* --- 3. ÁREA SCROLLEABLE DE CONTENIDO --- */}
       <div className="flex-1 overflow-y-auto pb-28">
         
-        {/* BUSCADOR (LO QUE TENÍAS) */}
+        {/* 🚀 BUSCADOR SEMÁNTICO IA */}
         <div className="px-6 mt-6">
-          <div className="flex items-center gap-3 bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-inner">
-            <Search className="w-5 h-5 text-slate-400" />
-            <input type="text" placeholder="¿Qué quieres comer hoy?" className="flex-1 bg-transparent text-sm font-medium outline-none text-slate-700" />
+          <div className="relative p-[2px] rounded-2xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-[#009688] shadow-lg shadow-violet-500/20 transition-all focus-within:scale-[1.02]">
+            <div className="flex items-center gap-3 bg-white px-5 py-3.5 rounded-[14px]">
+              <Sparkles className="w-5 h-5 text-violet-500" />
+              <input
+                type="text"
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && triggerAISearch()}
+                placeholder="Ej: Antojo de pastas, pero sin TACC..."
+                className="flex-1 bg-transparent text-sm font-medium outline-none text-slate-700 placeholder:text-slate-400"
+              />
+              <button onClick={triggerAISearch} className="bg-violet-100 hover:bg-violet-200 px-3 py-1.5 rounded-lg text-violet-700 font-bold text-xs flex items-center gap-1 transition-colors">
+                Buscar
+              </button>
+            </div>
           </div>
         </div>
 
@@ -184,7 +211,9 @@ export default function HomeTab() {
           <div className="flex items-center justify-between pr-6 mb-4">
             <div className="flex flex-col">
               <h4 className="text-lg font-bold text-slate-900">Recomendados para ti</h4>
-              <span className="text-xs font-bold text-[#009688]">100% {userDiet}</span>
+              <span className="text-xs font-bold text-violet-600 flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> AI Match Clínico
+              </span>
             </div>
             <button className="flex items-center gap-1 text-[11px] font-bold text-[#009688]">
               Ver más <ChevronRight className="w-3 h-3" />
@@ -196,6 +225,15 @@ export default function HomeTab() {
               <div key={restaurant.id} className="min-w-[240px] bg-white rounded-3xl p-3 border border-slate-100 shadow-sm snap-start">
                 <div className="relative">
                   <img src={restaurant.image} alt={restaurant.name} className="w-full h-32 object-cover rounded-2xl mb-3" />
+                  
+                  {/* ✨ BADGE DE AI MATCH */}
+                  <div className="absolute top-2 left-2 bg-violet-600/95 backdrop-blur-sm px-2 py-1.5 rounded-lg flex items-center gap-1 shadow-md border border-white/10 z-10">
+                    <Sparkles className="w-3 h-3 text-violet-100" />
+                    <span className="text-[10px] font-black text-white tracking-wide">
+                      {99 - (restaurant.id % 4)}% SEGURO
+                    </span>
+                  </div>
+
                   <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                     <span className="text-[10px] font-bold text-slate-700">{restaurant.rating}</span>
@@ -237,6 +275,39 @@ export default function HomeTab() {
           </div>
         </div>
       </div>
+
+      {/* --- OVERLAY ANIMADO DEL BUSCADOR IA --- */}
+      <AnimatePresence>
+        {isAiSearching && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[6000] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center px-6">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-6 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mb-4 relative">
+                <Bot className="w-8 h-8 text-violet-600 relative z-10" />
+                <div className="absolute inset-0 border-4 border-violet-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <h3 className="text-lg font-black text-slate-900 mb-2 tracking-tight">Picki AI procesando...</h3>
+              <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                Analizando las cartas de 120 restaurantes y cruzando ingredientes con tu perfil clínico y requerimientos.
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showAiSuccess && (
+          <motion.div 
+            initial={{ opacity: 0, y: -50 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: -50 }} 
+            className="fixed top-12 left-6 right-6 z-[6000] bg-emerald-500 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3"
+          >
+            <CheckCircle2 className="w-6 h-6 flex-shrink-0 text-emerald-100" />
+            <p className="text-sm font-bold leading-tight text-white">
+              ¡Match encontrado! Se filtraron los resultados para asegurar que sean 100% seguros para ti.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

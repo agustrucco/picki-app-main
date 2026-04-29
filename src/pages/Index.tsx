@@ -6,9 +6,9 @@ import MainApp from "@/components/MainApp";
 type AppState = "onboarding" | "auth" | "main";
 
 export default function Index() {
-  // 1. Inicializamos leyendo la memoria del navegador. Si no hay nada, arranca en "onboarding"
+  // 1. Inicializamos leyendo la memoria del navegador. Si no hay nada, arranca en "auth" (Login)
   const [state, setState] = useState<AppState>(() => {
-    return (localStorage.getItem("picki_app_state") as AppState) || "onboarding";
+    return (localStorage.getItem("picki_app_state") as AppState) || "auth";
   });
 
   // 2. Cada vez que cambiamos de pantalla, lo guardamos para siempre.
@@ -17,7 +17,7 @@ export default function Index() {
     setState(newState);
   };
 
-  if (state === "onboarding") return <Onboarding onComplete={() => handleSetState("auth")} />;
-  if (state === "auth") return <AuthScreen onSignIn={() => handleSetState("main")} />;
+  if (state === "auth") return <AuthScreen onSignIn={() => handleSetState("onboarding")} />;
+  if (state === "onboarding") return <Onboarding onComplete={() => handleSetState("main")} />;
   return <MainApp />;
 }
