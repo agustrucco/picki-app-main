@@ -25,7 +25,7 @@ export default function Index() {
     setState(newState);
   };
 
-  if (state === "auth") return <AuthScreen onSignIn={() => handleSetState("onboarding")} onGoToBusiness={() => handleSetState("b2b_register")} />;
+  if (state === "auth") return <AuthScreen onSignIn={() => handleSetState("onboarding")} onGoToBusiness={() => handleSetState("b2b_register")} onLogin={() => handleSetState("main")} />;
   if (state === "onboarding") return <Onboarding onComplete={() => handleSetState("main")} />;
   if (state === "b2b_register") return <B2BRegister onComplete={() => handleSetState("b2b_main")} onBack={() => handleSetState("auth")} />;
   if (state === "b2b_main") return <B2BDashboard />;

@@ -75,20 +75,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
-      <AnimatePresence>
-        {step > 0 && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={prev}
-            className="absolute top-10 left-6 p-2 rounded-full bg-card shadow-sm border border-border text-muted-foreground z-10"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       <div className="flex flex-col items-center pt-10 pb-4">
         <img src={pickilogo} alt="Picki" className="w-16 h-16 mb-2" />
         <p className="text-sm text-muted-foreground font-medium text-center">Comer seguro sin fronteras</p>
@@ -145,19 +131,32 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         </AnimatePresence>
       </div>
 
-      <div className="p-6">
-        <button
-          onClick={next}
-          disabled={selections[step].length === 0}
-          className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-all ${
-            selections[step].length > 0 
-            ? "bg-[#3F51B5] text-white shadow-lg" 
-            : "bg-muted text-muted-foreground cursor-not-allowed"
-          }`}
-        >
-          {step < slides.length - 1 ? "Siguiente" : "Comenzar"}
-          <ChevronRight className="w-5 h-5" />
-        </button>
+      <div className="p-6 flex gap-3">
+        {/* Botón Volver: solo aparece si ya avanzamos de la primera pregunta */}
+        {step > 0 && (
+          <button
+            onClick={prev}
+            className={`${slide.multi ? "flex-1" : "w-full"} py-4 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-all`}
+          >
+            Volver
+          </button>
+        )}
+
+        {/* Botón Siguiente/Comenzar: solo aparece si la pregunta permite selección múltiple */}
+        {slide.multi && (
+          <button
+            onClick={next}
+            disabled={selections[step].length === 0}
+            className={`${step > 0 ? "flex-[2]" : "w-full"} py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-all ${
+              selections[step].length > 0 
+              ? "bg-[#3F51B5] text-white shadow-lg" 
+              : "bg-muted text-muted-foreground cursor-not-allowed"
+            }`}
+          >
+            {step < slides.length - 1 ? "Siguiente" : "Comenzar"}
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import pickilogo from "@/assets/picki-logo.png";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
@@ -5,12 +6,20 @@ import { ShieldCheck } from "lucide-react";
 interface AuthScreenProps {
   onSignIn: () => void;
   onGoToBusiness: () => void;
+  onLogin: () => void; // Nueva prop para iniciar sesión directamente
 }
 
 export default function AuthScreen({
   onSignIn,
   onGoToBusiness,
+  onLogin,
 }: AuthScreenProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // Título simplificado ya que ambas opciones estarán visibles
+  const authTitle = "Bienvenido a Picki";
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-6 relative overflow-hidden">
       {/* Círculos decorativos de fondo borrosos (para darle un toque moderno) */}
@@ -20,13 +29,13 @@ export default function AuthScreen({
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center relative z-10"
+        className="w-full max-w-sm bg-white p-6 md:p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center relative z-10"
       >
         <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-slate-100">
           <img src={pickilogo} alt="Picki" className="w-12 h-12" />
         </div>
         
-        <h1 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Bienvenido a Picki</h1>
+        <h1 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">{authTitle}</h1>
         <div className="flex items-center gap-1.5 mb-8 text-[#009688] bg-[#009688]/10 px-3 py-1 rounded-full">
           <ShieldCheck className="w-4 h-4" />
           <span className="text-xs font-bold">Comer seguro sin fronteras</span>
@@ -34,7 +43,7 @@ export default function AuthScreen({
 
         <button
           onClick={onSignIn}
-          className="w-full py-4 px-6 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center gap-3 font-bold text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition-all mb-4"
+          className="w-full py-3.5 px-6 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center gap-3 font-bold text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition-all mb-4"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/>
@@ -45,6 +54,59 @@ export default function AuthScreen({
           Continuar con Google
         </button>
 
+        <div className="w-full flex items-center gap-3 my-2 mb-4">
+          <div className="h-[1px] flex-1 bg-slate-100" />
+          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">o con email</span>
+          <div className="h-[1px] flex-1 bg-slate-100" />
+        </div>
+
+        <div className="w-full space-y-3">
+          <input 
+            type="email" 
+            placeholder="Email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 transition-all"
+          />
+          <input 
+            type="password" 
+            placeholder="Contraseña" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 transition-all"
+          />
+          <button
+            onClick={onSignIn} // Este botón ahora siempre será para registrarse/inicio de sesión inicial
+            className="w-full py-3.5 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 active:scale-[0.98] transition-all"
+          >
+            Registrarme
+          </button>
+        </div>
+
+        {/* Nueva sección para iniciar sesión si ya se tiene cuenta */}
+        <div className="w-full text-center mt-4">
+          <span className="text-xs font-bold text-slate-400">¿Ya tienes cuenta? </span>
+          <button
+            onClick={onLogin} // Este botón es para usuarios existentes
+            className="text-xs font-bold text-violet-600 hover:text-violet-700 transition-colors underline"
+          >
+            Inicia sesión
+          </button>
+        </div>
+
+        {/* Se eliminó el botón de alternancia anterior
+        <button
+          onClick={() => setIsLogin(!isLogin)}
+          className="mt-4 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          {isLogin ? (
+            <>¿No tienes cuenta? <span className="text-violet-600">Regístrate</span></>
+          ) : (
+            <>¿Ya tienes cuenta? <span className="text-violet-600">Inicia sesión</span></>
+          )}
+        </button>
+        */}
+
         <p className="text-[11px] text-slate-400 text-center font-medium leading-relaxed px-4 mt-2">
           Al continuar, aceptas nuestros <br/>
           <a href="#" className="text-[#009688] underline underline-offset-2">Términos de Servicio</a> y <a href="#" className="text-[#009688] underline underline-offset-2">Política de Privacidad</a>.
@@ -53,7 +115,7 @@ export default function AuthScreen({
         <div className="mt-8 pt-6 border-t border-slate-100 w-full text-center">
           <button
             onClick={onGoToBusiness}
-            className="text-xs font-bold text-slate-500 hover:text-violet-600 transition-colors"
+            className="text-sm font-bold text-slate-500 hover:text-violet-600 transition-colors"
           >
             ¿Tienes un local? <span className="underline">Regístralo aquí</span>
           </button>
