@@ -4,9 +4,13 @@ import { ShieldCheck } from "lucide-react";
 
 interface AuthScreenProps {
   onSignIn: () => void;
+  onGoToBusiness: () => void;
 }
 
-export default function AuthScreen({ onSignIn }: AuthScreenProps) {
+export default function AuthScreen({
+  onSignIn,
+  onGoToBusiness,
+}: AuthScreenProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-6 relative overflow-hidden">
       {/* Círculos decorativos de fondo borrosos (para darle un toque moderno) */}
@@ -45,6 +49,15 @@ export default function AuthScreen({ onSignIn }: AuthScreenProps) {
           Al continuar, aceptas nuestros <br/>
           <a href="#" className="text-[#009688] underline underline-offset-2">Términos de Servicio</a> y <a href="#" className="text-[#009688] underline underline-offset-2">Política de Privacidad</a>.
         </p>
+
+        <div className="mt-8 pt-6 border-t border-slate-100 w-full text-center">
+          <button
+            onClick={onGoToBusiness}
+            className="text-xs font-bold text-slate-500 hover:text-violet-600 transition-colors"
+          >
+            ¿Tienes un local? <span className="underline">Regístralo aquí</span>
+          </button>
+        </div>
       </motion.div>
     </div>
   );
