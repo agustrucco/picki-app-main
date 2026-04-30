@@ -11,12 +11,6 @@ import {
   Star,
 } from "lucide-react";
 
-const restaurantProfile = {
-  name: "Cafetería Sin TACC",
-  address: "Av. Corrientes 1234, CABA",
-  type: "100% Libre de Gluten",
-};
-
 // Datos falsos para las estadísticas
 const stats = [
   { label: "Visitas al perfil", value: "1,248", trend: "+12%", icon: Users, color: "bg-blue-50 text-blue-600" },
@@ -36,6 +30,10 @@ const chartData = [
 ];
 
 export default function B2BDashboard() {
+  // Recuperamos los datos reales guardados durante el registro
+  const businessName = localStorage.getItem("picki_b2b_name") || "Tu Local";
+  const businessType = localStorage.getItem("picki_b2b_type") || "Certificación Pendiente";
+
   const handleLogout = () => {
     localStorage.clear();
     window.location.reload();
@@ -84,7 +82,7 @@ export default function B2BDashboard() {
         </header>
 
         <div className="flex-1 p-8 overflow-y-auto">
-          <h1 className="text-3xl font-black text-slate-800 mb-2">Dashboard de {restaurantProfile.name}</h1>
+          <h1 className="text-3xl font-black text-slate-800 mb-2">Dashboard de {businessName}</h1>
           <p className="text-slate-500 mb-8">Bienvenido de nuevo. Aquí tienes un resumen de tu actividad.</p>
 
           {/* TARJETAS DE MÉTRICAS */}
@@ -140,7 +138,7 @@ export default function B2BDashboard() {
                 <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
                   <BadgeCheck className="w-8 h-8 text-emerald-600" />
                 </div>
-                <h4 className="font-bold text-slate-800 mb-1">{restaurantProfile.type}</h4>
+                <h4 className="font-bold text-slate-800 mb-1">{businessType}</h4>
                 <p className="text-xs font-medium text-emerald-600 mb-4">Verificada por Picki Standards</p>
                 <button className="w-full py-2.5 bg-white border border-slate-200 shadow-sm text-sm font-bold text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
                   Subir nuevo certificado

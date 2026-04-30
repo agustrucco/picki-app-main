@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldCheck, Star, ArrowRight, ChevronLeft, Image as ImageIcon, CheckCircle2, Store } from "lucide-react";
+import { ShieldCheck, Star, ArrowRight, ChevronLeft, CheckCircle2, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface B2BRegisterProps {
@@ -17,6 +17,10 @@ export default function B2BRegister({ onComplete, onBack }: B2BRegisterProps) {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = () => {
+    // Guardamos el nombre y tipo para que el Dashboard los recupere
+    localStorage.setItem("picki_b2b_name", name || "Tu Local");
+    localStorage.setItem("picki_b2b_type", type);
+
     setShowSuccess(true);
     // Simulamos un tiempo de carga/procesamiento de 2 segundos antes de ir al dashboard
     setTimeout(() => {
