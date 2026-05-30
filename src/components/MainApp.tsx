@@ -3,6 +3,7 @@ import { Home, Compass, User } from "lucide-react";
 import HomeTab from "./tabs/HomeTab";
 import ExploreTab from "./tabs/ExploreTab";
 import ProfileTab from "./tabs/ProfileTab";
+import AgentTab from "./tabs/AgentTab";
 
 const tabs = [
   { id: "home", label: "Inicio", icon: Home },
@@ -15,9 +16,11 @@ type TabId = (typeof tabs)[number]["id"];
 export default function MainApp() {
   const [activeTab, setActiveTab] = useState<TabId>("home");
 
+  const appMode = localStorage.getItem("picki_app_mode") || "classic";
+
   return (
     <div className="min-h-screen bg-background">
-      {activeTab === "home" && <HomeTab />}
+      {activeTab === "home" && (appMode === "agent" ? <AgentTab /> : <HomeTab />)}
       {activeTab === "explore" && <ExploreTab />}
       {activeTab === "profile" && <ProfileTab />}
 
