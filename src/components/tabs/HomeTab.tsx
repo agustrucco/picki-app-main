@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag, Star, ShieldCheck, Sparkles, Bot, CheckCircle2 } from "lucide-react";
+import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag, Star, ShieldCheck, Sparkles, Bot, CheckCircle2, Coffee, Beer, IceCream, CakeSlice, MoreHorizontal, MessageCircle, X, Send, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MOCK_RESTAURANTS } from "@/data/mockRestaurants";
 
@@ -13,6 +13,7 @@ export default function HomeTab() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [isAiSearching, setIsAiSearching] = useState(false);
   const [showAiSuccess, setShowAiSuccess] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const triggerAISearch = () => {
     if (!aiPrompt) return;
@@ -69,10 +70,11 @@ export default function HomeTab() {
 
   return (
     // Usamos bg-slate-50 para que el fondo no sea blanco puro y los banners resalten
-    <div className="flex flex-col h-full bg-slate-50 overflow-hidden font-sans relative">
+    <div className="flex flex-col min-h-screen bg-slate-50 font-sans relative select-none">
       
       {/* --- 2. HEADER: DIRECCIÓN Y NOTIFICACIONES (LO QUE TENÍAS) --- */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white shadow-sm">
+      {/* pt-[calc(env(safe-area-inset-top)+1rem)] asegura que el contenido no quede debajo del notch en móviles */}
+      <div className="sticky top-0 flex items-center justify-between px-6 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] bg-white/80 backdrop-blur-md shadow-sm z-[100]">
         <div className="flex flex-col">
           <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">ENTREGAR EN</span>
           <div className="flex items-center gap-1.5 cursor-pointer">
@@ -81,13 +83,14 @@ export default function HomeTab() {
             <ChevronRight className="w-4 h-4 text-slate-400" />
           </div>
         </div>
-        <button className="p-2.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all">
+        <button className="p-2.5 rounded-full bg-slate-100 text-slate-500 active:bg-slate-200 active:scale-90 transition-all">
           <Bell className="w-5 h-5" />
         </button>
       </div>
 
       {/* --- 3. ÁREA SCROLLEABLE DE CONTENIDO --- */}
-      <div className="flex-1 overflow-y-auto pb-28">
+      {/* pb-safe evita que el contenido quede detrás de la barra de navegación del sistema móvil */}
+      <div className="pb-[calc(env(safe-area-inset-bottom)+8rem)]">
         
         {/* 🚀 BUSCADOR SEMÁNTICO IA */}
         <div className="px-6 mt-6">
@@ -102,7 +105,7 @@ export default function HomeTab() {
                 placeholder="Ej: Antojo de pastas, pero sin TACC..."
                 className="flex-1 bg-transparent text-sm font-medium outline-none text-slate-700 placeholder:text-slate-400"
               />
-              <button onClick={triggerAISearch} className="bg-violet-100 hover:bg-violet-200 px-3 py-1.5 rounded-lg text-violet-700 font-bold text-xs flex items-center gap-1 transition-colors">
+              <button onClick={triggerAISearch} className="bg-violet-100 active:bg-violet-200 px-3 py-1.5 rounded-lg text-violet-700 font-bold text-xs flex items-center gap-1 transition-all active:scale-95">
                 Buscar
               </button>
             </div>
@@ -111,16 +114,16 @@ export default function HomeTab() {
 
         {/* 🚀 BANNER DEMO DAY PICKI (LO NUEVO) */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mx-6 mt-8 p-5 bg-slate-900 rounded-[32px] shadow-2xl shadow-slate-900/30 border border-white/10 relative overflow-hidden"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mx-6 mt-8 p-5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[32px] shadow-2xl shadow-slate-900/30 border border-white/10 relative overflow-hidden"
         >
           {/* Decoración de fondo */}
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#009688] opacity-20 blur-3xl rounded-full" />
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#009688] opacity-30 blur-3xl rounded-full" />
           
           <div className="flex items-center justify-between mb-4 relative z-10">
             <div className="flex items-center gap-2">
-              <div className="bg-[#009688] p-1.5 rounded-lg shadow-lg shadow-[#009688]/40">
+              <div className="bg-gradient-to-tr from-[#009688] to-emerald-400 p-1.5 rounded-lg shadow-lg shadow-[#009688]/40">
                 <Rocket className="w-3.5 h-3.5 text-white" />
               </div>
               <div>
@@ -152,6 +155,28 @@ export default function HomeTab() {
             ))}
           </div>
         </motion.div>
+
+        {/* 🤖 AI INSIGHT: RECOMENDACIÓN DEL DÍA */}
+        <div className="px-6 mt-8">
+          <div className="bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-violet-600" />
+                </div>
+                <span className="text-[10px] font-black text-violet-600 uppercase tracking-widest">Picki AI Insight</span>
+              </div>
+              <span className="bg-amber-100 text-amber-700 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Tip de Seguridad</span>
+            </div>
+            <p className="text-sm font-bold text-slate-800 leading-tight">
+              "Hoy hay alta humedad. Si vas a <span className="text-[#009688]">Sintaxis</span>, recuerda que su protocolo de secado de utensilios es el mejor para evitar contaminación cruzada aérea."
+            </p>
+            <div className="mt-3 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+              <span className="text-[10px] font-bold text-slate-400 italic">Basado en tu perfil de {userDiet}</span>
+            </div>
+          </div>
+        </div>
 
         {/* --- 4. BANNER VERDE "COMER SEGURO" (LO QUE TENÍAS) --- */}
         <div className="px-6 mt-8">
@@ -191,14 +216,18 @@ export default function HomeTab() {
           
           <div className="grid grid-cols-2 gap-4">
             {[
-              { label: "Restaurantes", icon: UtensilsCrossed, color: "bg-[#009688]/10 text-[#009688]" },
-              { label: "Supermercado", icon: ShoppingBag, color: "bg-slate-100 text-slate-600" }
+              { label: "Restaurante", icon: UtensilsCrossed, color: "bg-[#009688]/10 text-[#009688]" },
+              { label: "Cafetería", icon: Coffee, color: "bg-orange-50 text-orange-600" },
+              { label: "Bar", icon: Beer, color: "bg-amber-50 text-amber-600" },
+              { label: "Heladería", icon: IceCream, color: "bg-pink-50 text-pink-600" },
+              { label: "Pastelería", icon: CakeSlice, color: "bg-purple-50 text-purple-600" },
+              { label: "Otro", icon: MoreHorizontal, color: "bg-slate-100 text-slate-500" },
             ].map((cat, i) => (
-              <div key={i} className="bg-white p-5 rounded-3xl border border-slate-100 flex items-center gap-4 shadow-sm active:scale-95 transition-all cursor-pointer">
-                <div className={`p-3 rounded-xl ${cat.color}`}>
-                  <cat.icon className="w-6 h-6" />
+              <div key={i} className="bg-white p-4 rounded-3xl border border-slate-100 flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all cursor-pointer h-16">
+                <div className={`p-2 rounded-xl ${cat.color} flex-shrink-0`}>
+                  <cat.icon className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm text-slate-800 flex-1 text-center pr-6">
+                <span className="font-bold text-sm text-slate-800">
                   {cat.label}
                 </span>
               </div>
@@ -308,6 +337,81 @@ export default function HomeTab() {
         )}
       </AnimatePresence>
 
+      {/* --- 🤖 AGENTE PICKI: CHATBOT FLOTANTE --- */}
+      <div className="fixed bottom-32 right-6 z-[5000]">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsChatOpen(true)}
+          className="w-14 h-14 bg-slate-900 rounded-full shadow-2xl flex items-center justify-center relative group"
+        >
+          {/* Efecto de pulso para indicar que es IA viva */}
+          <div className="absolute inset-0 rounded-full bg-slate-900 animate-ping opacity-20 group-hover:opacity-0 transition-opacity" />
+          <Bot className="w-6 h-6 text-white relative z-10" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#009688] rounded-full border-2 border-white flex items-center justify-center">
+            <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+          </div>
+        </motion.button>
+      </div>
+
+      {/* MODAL DEL AGENTE CHATBOT */}
+      <AnimatePresence>
+        {isChatOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsChatOpen(false)}
+              className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-[6000]"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 100, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 100, scale: 0.9 }}
+              className="fixed bottom-6 left-6 right-6 top-20 bg-white rounded-[32px] shadow-2xl z-[6001] flex flex-col overflow-hidden border border-slate-100"
+            >
+              {/* Header del Chat */}
+              <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#009688] rounded-2xl flex items-center justify-center shadow-lg shadow-[#009688]/20">
+                    <Bot className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-lg leading-none">Agente Picki</h3>
+                    <span className="text-[10px] font-bold text-[#009688] uppercase tracking-widest">En línea ahora</span>
+                  </div>
+                </div>
+                <button onClick={() => setIsChatOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Mensajes (Simulados) */}
+              <div className="flex-1 p-6 overflow-y-auto bg-slate-50 flex flex-col gap-4">
+                <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 max-w-[85%]">
+                  <p className="text-sm font-medium text-slate-700">
+                    ¡Hola {userName}! Soy tu asistente inteligente de Picki. ¿Necesitas ayuda para validar si un restaurante es seguro para tu dieta de <span className="text-[#009688] font-bold">{userDiet}</span> hoy?
+                  </p>
+                </div>
+                <div className="bg-[#009688] p-4 rounded-2xl rounded-tr-none shadow-md self-end max-w-[85%]">
+                  <p className="text-sm font-medium text-white">¿Qué me recomiendas para cenar hoy cerca de Palermo?</p>
+                </div>
+              </div>
+
+              {/* Input de Chat */}
+              <div className="p-4 bg-white border-t border-slate-100">
+                <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+                  <input type="text" placeholder="Pregúntale a Picki..." className="flex-1 bg-transparent px-3 py-2 text-sm font-medium outline-none" />
+                  <button className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white active:scale-90 transition-all">
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

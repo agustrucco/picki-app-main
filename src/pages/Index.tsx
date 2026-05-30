@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Onboarding from "@/components/Onboarding";
 import AuthScreen from "@/components/AuthScreen";
 import MainApp from "@/components/MainApp";
 import B2BDashboard from "./B2BDashboard";
 import B2BRegister from "./B2BRegister";
+import { supabase } from "@/lib/supabase";
 
 type AppState = "onboarding" | "auth" | "main" | "b2b_auth" | "b2b_register" | "b2b_main";
 
@@ -18,6 +19,25 @@ export default function Index() {
     // Por defecto, siempre al login de clientes.
     return "auth";
   });
+
+  // Escuchar cambios de sesión de Supabase
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Si el usuario acaba de entrar, verificamos si ya pasó por el onboarding
+        const hasCompletedOnboarding = localStorage.getItem("picki_user_diet");
+        if (!hasCompletedOnboarding && state !== "onboarding") {
+          handleSetState("onboarding");
+        } else if (hasCompletedOnboarding) {
+          handleSetState("main");
+        }
+      } else if (event === 'SIGNED_OUT') {
+        handleSetState("auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [state]);
 
   // 2. Cada vez que cambiamos de pantalla, lo guardamos para siempre.
   const handleSetState = (newState: AppState) => {

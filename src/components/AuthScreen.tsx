@@ -2,6 +2,7 @@ import { useState } from "react";
 import pickilogo from "@/assets/picki-logo.png";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface AuthScreenProps {
   onSignIn: () => void;
@@ -16,6 +17,44 @@ export default function AuthScreen({
 }: AuthScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!email || !password) return alert("Ingresa email y contraseña");
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      
+      if (error) {
+        alert(error.message);
+      } else if (data.user && data.session === null) {
+        // Esto pasa cuando el email necesita confirmación
+        alert("¡Registro casi listo! Te enviamos un mail de confirmación a " + email);
+        // Opcionalmente puedes redirigir igual o esperar
+        onSignIn();
+      } else if (data.user && data.session) {
+        // Esto pasa si desactivaste "Confirm Email" en Supabase
+        onLogin();
+      }
+    } catch (err) {
+      alert("Error inesperado en el registro");
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  const handleEmailLogin = async () => {
+    if (!email || !password) return alert("Ingresa email y contraseña");
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      alert(error.message);
+    } else {
+      onLogin();
+    }
+    setLoading(false);
+  };
 
   // Título simplificado ya que ambas opciones estarán visibles
   const authTitle = "Bienvenido a Picki";
@@ -76,10 +115,11 @@ export default function AuthScreen({
             className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 transition-all"
           />
           <button
-            onClick={onSignIn} // Este botón ahora siempre será para registrarse/inicio de sesión inicial
-            className="w-full py-3.5 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 active:scale-[0.98] transition-all"
+            onClick={handleSignUp}
+            disabled={loading}
+            className="w-full py-3.5 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 active:scale-[0.98] transition-all disabled:opacity-50"
           >
-            Registrarme
+            {loading ? "Cargando..." : "Registrarme"}
           </button>
         </div>
 
@@ -87,8 +127,9 @@ export default function AuthScreen({
         <div className="w-full text-center mt-4">
           <span className="text-xs font-bold text-slate-400">¿Ya tienes cuenta? </span>
           <button
-            onClick={onLogin} // Este botón es para usuarios existentes
-            className="text-xs font-bold text-violet-600 hover:text-violet-700 transition-colors underline"
+            onClick={handleEmailLogin}
+            disabled={loading}
+            className="text-xs font-bold text-violet-600 hover:text-violet-700 transition-colors underline disabled:opacity-50"
           >
             Inicia sesión
           </button>
