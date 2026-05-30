@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, User } from "lucide-react";
+import { Bot, Send, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AgentTab() {
@@ -50,6 +50,11 @@ export default function AgentTab() {
     }, 1500);
   };
 
+  const switchToClassic = () => {
+    localStorage.setItem("picki_app_mode", "classic");
+    window.location.reload(); // Recargamos para que MainApp lea la nueva preferencia
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] bg-slate-50 font-sans">
       {/* HEADER */}
@@ -61,6 +66,13 @@ export default function AgentTab() {
           <h2 className="font-black text-slate-900 text-lg leading-none">Picki Agent</h2>
           <span className="text-[10px] font-bold text-[#009688] uppercase tracking-widest">En línea</span>
         </div>
+        <div className="flex-1" />
+        <button 
+          onClick={switchToClassic}
+          className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all"
+        >
+          <Store className="w-3.5 h-3.5" /> Clásico
+        </button>
       </div>
 
       {/* ÁREA DE MENSAJES */}
