@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, Send, User } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function AgentTab() {
   const userName = localStorage.getItem("picki_user_name") || "Agustín";
@@ -14,6 +14,14 @@ export default function AgentTab() {
     }
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showQuickReplies, setShowQuickReplies] = useState(true);
+
+  const quickReplies = [
+    "🍕 Antojo de pizza",
+    "🍝 Pastas seguras",
+    "☕ Cafetería linda",
+    "🥗 Algo sano y liviano"
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -23,19 +31,21 @@ export default function AgentTab() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = (textOverride?: string) => {
+    // Si recibimos un texto por parámetro (click en respuesta rápida) usamos ese, sino el input.
+    const textToSend = typeof textOverride === 'string' ? textOverride : input;
+    if (!textToSend.trim()) return;
     
     // Agregar mensaje del usuario
-    setMessages(prev => [...prev, { sender: "user", text: input }]);
-    const userText = input;
+    setMessages(prev => [...prev, { sender: "user", text: textToSend }]);
     setInput("");
+    setShowQuickReplies(false); // Ocultamos las sugerencias
 
     // Simular respuesta de la IA basada en lo que pide el usuario
     setTimeout(() => {
       setMessages(prev => [...prev, { 
         sender: "bot", 
-        text: `¡Entendido! Buscando la mejor opción segura de ${userDiet} relacionada con "${userText}"... (Simulación: Aquí la IA devolvería una tarjeta de restaurante).` 
+        text: `¡Entendido! Buscando la mejor opción segura de ${userDiet} relacionada con "${textToSend}"... (Simulación: Aquí la IA devolvería una tarjeta de restaurante).` 
       }]);
     }, 1500);
   };
@@ -74,6 +84,28 @@ export default function AgentTab() {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* RESPUESTAS RÁPIDAS */}
+      <AnimatePresence>
+        {showQuickReplies && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            className="flex gap-2 px-6 pb-2 overflow-x-auto [&::-webkit-scrollbar]:hidden shrink-0 mt-2"
+          >
+            {quickReplies.map((reply, i) => (
+              <button
+                key={i}
+                onClick={() => handleSend(reply)}
+                className="bg-white border border-violet-200 text-violet-700 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-sm hover:bg-violet-50 hover:border-violet-300 active:scale-95 transition-all"
+              >
+                {reply}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* INPUT */}
       <div className="p-4 bg-white border-t border-slate-100 shrink-0 mb-4">
         <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100 focus-within:border-violet-300 transition-colors">
@@ -85,7 +117,7 @@ export default function AgentTab() {
             placeholder="¿Qué quieres comer hoy?" 
             className="flex-1 bg-transparent px-3 py-2 text-sm font-medium outline-none text-slate-800" 
           />
-          <button onClick={handleSend} className="w-10 h-10 bg-slate-900 hover:bg-violet-600 rounded-xl flex items-center justify-center text-white active:scale-90 transition-all">
+          <button onClick={() => handleSend()} className="w-10 h-10 bg-slate-900 hover:bg-violet-600 rounded-xl flex items-center justify-center text-white active:scale-90 transition-all">
             <Send className="w-4 h-4" />
           </button>
         </div>
