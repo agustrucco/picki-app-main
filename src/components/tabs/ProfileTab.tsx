@@ -23,6 +23,10 @@ const favorites = [
 ];
 
 export default function ProfileTab() {
+  // Leemos los datos del usuario guardados en la memoria local
+  const userName = localStorage.getItem("picki_user_name") || "Agustín";
+  const userDiet = localStorage.getItem("picki_user_diet") || "Libre de Gluten";
+
   // Estados para simular el chat de la IA
   const [showAI, setShowAI] = useState(false);
   const [messages, setMessages] = useState<{text: string}[]>([]);
@@ -68,8 +72,8 @@ export default function ProfileTab() {
           <User className="w-7 h-7 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-foreground">María García</h2>
-          <p className="text-sm text-muted-foreground">Celíaca · Sin lácteos</p>
+          <h2 className="text-lg font-bold text-foreground">{userName}</h2>
+          <p className="text-sm text-muted-foreground">{userDiet}</p>
         </div>
       </div>
 

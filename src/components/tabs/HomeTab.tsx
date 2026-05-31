@@ -3,7 +3,11 @@ import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, Sho
 import { motion, AnimatePresence } from "framer-motion";
 import { MOCK_RESTAURANTS } from "@/data/mockRestaurants";
 
-export default function HomeTab() {
+interface HomeTabProps {
+  onSwitchMode?: () => void;
+}
+
+export default function HomeTab({ onSwitchMode }: HomeTabProps) {
   // --- LECTURA DE DATOS DEL ONBOARDING (SIMULACIÓN PARA EL MVP) ---
   // Lee de localStorage, o usa valores por defecto si está vacío
   const userName = localStorage.getItem("picki_user_name") || "Agustín";
@@ -13,7 +17,6 @@ export default function HomeTab() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [isAiSearching, setIsAiSearching] = useState(false);
   const [showAiSuccess, setShowAiSuccess] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const triggerAISearch = () => {
     if (!aiPrompt) return;
@@ -342,7 +345,9 @@ export default function HomeTab() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setIsChatOpen(true)}
+          onClick={() => {
+            if (onSwitchMode) onSwitchMode();
+          }}
           className="w-14 h-14 bg-slate-900 rounded-full shadow-2xl flex items-center justify-center relative group"
         >
           {/* Efecto de pulso para indicar que es IA viva */}
@@ -354,64 +359,6 @@ export default function HomeTab() {
         </motion.button>
       </div>
 
-      {/* MODAL DEL AGENTE CHATBOT */}
-      <AnimatePresence>
-        {isChatOpen && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              onClick={() => setIsChatOpen(false)}
-              className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-[6000]"
-            />
-            <motion.div
-              initial={{ opacity: 0, y: 100, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 100, scale: 0.9 }}
-              className="fixed bottom-6 left-6 right-6 top-20 bg-white rounded-[32px] shadow-2xl z-[6001] flex flex-col overflow-hidden border border-slate-100"
-            >
-              {/* Header del Chat */}
-              <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#009688] rounded-2xl flex items-center justify-center shadow-lg shadow-[#009688]/20">
-                    <Bot className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-lg leading-none">Agente Picki</h3>
-                    <span className="text-[10px] font-bold text-[#009688] uppercase tracking-widest">En línea ahora</span>
-                  </div>
-                </div>
-                <button onClick={() => setIsChatOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Mensajes (Simulados) */}
-              <div className="flex-1 p-6 overflow-y-auto bg-slate-50 flex flex-col gap-4">
-                <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 max-w-[85%]">
-                  <p className="text-sm font-medium text-slate-700">
-                    ¡Hola {userName}! Soy tu asistente inteligente de Picki. ¿Necesitas ayuda para validar si un restaurante es seguro para tu dieta de <span className="text-[#009688] font-bold">{userDiet}</span> hoy?
-                  </p>
-                </div>
-                <div className="bg-[#009688] p-4 rounded-2xl rounded-tr-none shadow-md self-end max-w-[85%]">
-                  <p className="text-sm font-medium text-white">¿Qué me recomiendas para cenar hoy cerca de Palermo?</p>
-                </div>
-              </div>
-
-              {/* Input de Chat */}
-              <div className="p-4 bg-white border-t border-slate-100">
-                <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100">
-                  <input type="text" placeholder="Pregúntale a Picki..." className="flex-1 bg-transparent px-3 py-2 text-sm font-medium outline-none" />
-                  <button className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white active:scale-90 transition-all">
-                    <Send className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

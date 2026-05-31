@@ -16,11 +16,16 @@ type TabId = (typeof tabs)[number]["id"];
 export default function MainApp() {
   const [activeTab, setActiveTab] = useState<TabId>("home");
 
-  const appMode = localStorage.getItem("picki_app_mode") || "classic";
+  const [appMode, setAppMode] = useState(localStorage.getItem("picki_app_mode") || "classic");
+
+  const handleSwitchMode = (mode: "classic" | "agent") => {
+    localStorage.setItem("picki_app_mode", mode);
+    setAppMode(mode);
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {activeTab === "home" && (appMode === "agent" ? <AgentTab /> : <HomeTab />)}
+      {activeTab === "home" && (appMode === "agent" ? <AgentTab onSwitchMode={() => handleSwitchMode("classic")} /> : <HomeTab onSwitchMode={() => handleSwitchMode("agent")} />)}
       {activeTab === "explore" && <ExploreTab />}
       {activeTab === "profile" && <ProfileTab />}
 
