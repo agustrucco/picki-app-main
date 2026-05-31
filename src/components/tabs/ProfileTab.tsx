@@ -27,6 +27,10 @@ export default function ProfileTab() {
   const userName = localStorage.getItem("picki_user_name") || "Agustín";
   const userDiet = localStorage.getItem("picki_user_diet") || "Libre de Gluten";
 
+  // Generamos un Avatar dinámico usando el nombre del usuario y el color verde principal de Picki
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=009688&color=fff&size=150&rounded=true&bold=true`;
+  const botAvatarUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=Picki&backgroundColor=7c3aed";
+
   // Estados para simular el chat de la IA
   const [showAI, setShowAI] = useState(false);
   const [messages, setMessages] = useState<{text: string}[]>([]);
@@ -68,9 +72,7 @@ export default function ProfileTab() {
     <div className="pb-24 px-5 pt-5">
       {/* User card */}
       <div className="bg-card rounded-2xl p-5 shadow-sm mb-6 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-          <User className="w-7 h-7 text-primary" />
-        </div>
+        <img src={avatarUrl} alt={userName} className="w-14 h-14 rounded-full shadow-md border-2 border-white object-cover" />
         <div>
           <h2 className="text-lg font-bold text-foreground">{userName}</h2>
           <p className="text-sm text-muted-foreground">{userDiet}</p>
@@ -160,13 +162,11 @@ export default function ProfileTab() {
             {/* Header del Chat */}
             <div className="bg-white px-5 py-4 border-b border-slate-100 flex items-center justify-between shadow-sm pb-[max(1rem,env(safe-area-inset-top))]">
               <div className="flex items-center gap-3">
-                <div className="bg-violet-100 p-2 rounded-xl text-violet-600">
-                  <Bot className="w-5 h-5" />
-                </div>
+                <img src={botAvatarUrl} alt="Picki Agent" className="w-10 h-10 rounded-xl shadow-sm border border-slate-100 object-cover" />
                 <div>
                   <h3 className="font-bold text-slate-900 leading-tight">Picki AI</h3>
                   <p className="text-[10px] font-medium text-violet-600 flex items-center gap-1">
-                    <Activity className="w-3 h-3" /> Escaneo Clínico Activo
+                    <Activity className="w-3 h-3" /> Escaneo Clínico
                   </p>
                 </div>
               </div>
@@ -179,15 +179,15 @@ export default function ProfileTab() {
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
               {messages.map((msg, idx) => (
                 <motion.div key={idx} initial={{ opacity: 0, scale: 0.9, originX: 0 }} animate={{ opacity: 1, scale: 1 }} className="flex gap-3 max-w-[85%]">
-                  <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center flex-shrink-0 mt-1"><Bot className="w-4 h-4 text-white" /></div>
+                  <img src={botAvatarUrl} alt="Picki" className="w-8 h-8 rounded-full shadow-sm border border-slate-100 flex-shrink-0 mt-1 object-cover" />
                   <div className="bg-white p-3.5 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100 text-sm text-slate-700 leading-relaxed">{msg.text}</div>
                 </motion.div>
               ))}
 
               {isTyping && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3 max-w-[85%]">
-                  <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center flex-shrink-0 mt-1"><Bot className="w-4 h-4 text-white" /></div>
-                  <div className="bg-white px-4 py-3.5 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100 flex items-center gap-1.5">
+                  <img src={botAvatarUrl} alt="Picki" className="w-8 h-8 rounded-full shadow-sm border border-slate-100 flex-shrink-0 mt-1 object-cover" />
+                  <div className="bg-white px-4 py-4 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100 flex items-center gap-1.5 h-[48px]">
                     <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce"></span>
                     <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></span>
                     <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></span>
