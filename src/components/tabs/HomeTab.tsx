@@ -54,6 +54,9 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date().getTime();
+      const dayInMs = 1000 * 60 * 60 * 24;
+      const monthInMs = dayInMs * 30.44;
+      
       const difference = targetDate - now;
 
       if (difference > 0) {
@@ -69,6 +72,9 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
           segundos: Math.floor((difference % (1000 * 60)) / 1000),
         });
       } else {
+      }
+
+      if (difference <= 0) {
         clearInterval(interval);
       }
     }, 1000);
