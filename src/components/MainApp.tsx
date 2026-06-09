@@ -30,7 +30,7 @@ export default function MainApp() {
       {activeTab === "profile" && <ProfileTab />}
 
       {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-[4000]">
         <div className="flex justify-around py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {tabs.map((tab) => {
             const active = activeTab === tab.id;

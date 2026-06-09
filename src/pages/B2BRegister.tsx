@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldCheck, Star, ArrowRight, ChevronLeft, CheckCircle2, Store } from "lucide-react";
+import { ShieldCheck, Star, ArrowRight, ChevronLeft, CheckCircle2, Store, Award } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface B2BRegisterProps {
@@ -12,6 +12,7 @@ export default function B2BRegister({ onComplete, onBack }: B2BRegisterProps) {
   const [name, setName] = useState("");
   const [type, setType] = useState("100% Libre de Gluten");
   const [image, setImage] = useState("");
+  const [wantsCertification, setWantsCertification] = useState(false);
 
   // Estado para controlar la pantalla de éxito
   const [showSuccess, setShowSuccess] = useState(false);
@@ -20,6 +21,7 @@ export default function B2BRegister({ onComplete, onBack }: B2BRegisterProps) {
     // Guardamos el nombre y tipo para que el Dashboard los recupere
     localStorage.setItem("picki_b2b_name", name || "Tu Local");
     localStorage.setItem("picki_b2b_type", type);
+    localStorage.setItem("picki_b2b_certified", wantsCertification.toString());
 
     setShowSuccess(true);
     // Simulamos un tiempo de carga/procesamiento de 2 segundos antes de ir al dashboard
@@ -84,6 +86,31 @@ export default function B2BRegister({ onComplete, onBack }: B2BRegisterProps) {
               />
             </div>
 
+            {/* UPSELL B2B: CERTIFICACIÓN PICKI */}
+            <div className="mt-2 bg-gradient-to-br from-amber-50 to-orange-50 border border-orange-200 p-4 rounded-xl relative overflow-hidden transition-all hover:border-orange-300">
+              <div className="absolute -top-4 -right-4 p-2 opacity-10 pointer-events-none">
+                <Award className="w-24 h-24 text-orange-600" />
+              </div>
+              <label className="flex items-start gap-3 cursor-pointer relative z-10">
+                <div className="mt-0.5">
+                  <input 
+                    type="checkbox" 
+                    checked={wantsCertification}
+                    onChange={(e) => setWantsCertification(e.target.checked)}
+                    className="w-5 h-5 accent-orange-500 rounded-md cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <span className="block text-sm font-black text-orange-700 mb-0.5 flex items-center gap-1.5">
+                    <Award className="w-4 h-4" /> Solicitar Certificación Picki
+                  </span>
+                  <p className="text-xs text-orange-700/80 font-medium leading-relaxed pr-4">
+                    Potencia tu visibilidad. Obtén el sello de seguridad oficial verificado y accede a nuestro programa premium para comercios.
+                  </p>
+                </div>
+              </label>
+            </div>
+
             <button onClick={handleSubmit} className="w-full mt-4 bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-violet-600/30 active:scale-[0.98] transition-all">
               Aceptar y Publicar <ArrowRight className="w-5 h-5" />
             </button>
@@ -103,6 +130,12 @@ export default function B2BRegister({ onComplete, onBack }: B2BRegisterProps) {
 
         {/* TARJETA DE PICKI (Idéntica a la que ven los usuarios) */}
         <motion.div layout className="w-full max-w-[280px] bg-white rounded-3xl p-3 shadow-2xl shadow-slate-300/50 border border-slate-100 relative z-10">
+          {wantsCertification && (
+            <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-400 to-amber-500 text-white px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg shadow-orange-500/30 z-20 border-2 border-white">
+              <Award className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-black uppercase tracking-wider">Certificado</span>
+            </div>
+          )}
           <div className="relative">
             <img src={previewImage} alt="Preview" className="w-full h-40 object-cover rounded-2xl mb-3 bg-slate-200" />
             <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">

@@ -1,11 +1,45 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Rocket, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag, Star, ShieldCheck, Sparkles, Bot, CheckCircle2, Coffee, Beer, IceCream, CakeSlice, MoreHorizontal, MessageCircle, X, Send, Zap } from "lucide-react";
+import { Timer, ChevronRight, Search, MapPin, Bell, UtensilsCrossed, ShoppingBag, Star, ShieldCheck, Sparkles, Bot, CheckCircle2, Coffee, Beer, IceCream, CakeSlice, MoreHorizontal, MessageCircle, X, Send, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MOCK_RESTAURANTS } from "@/data/mockRestaurants";
 
 interface HomeTabProps {
   onSwitchMode?: () => void;
 }
+
+// --- MOCK DE PLATOS Y RECETAS ---
+const MOCK_RECIPES = [
+  {
+    id: 1,
+    name: "Sorrentinos de Jamón y Queso",
+    restaurant: "Sintaxis Palermo",
+    type: "100% Libre de Gluten",
+    image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
+    price: "$8.500",
+    ingredients: [
+      { name: "Masa fresca sin TACC", price: "$2.000" },
+      { name: "Jamón cocido natural", price: "$1.500" },
+      { name: "Queso mozzarella", price: "$1.800" },
+      { name: "Salsa de tomate casera", price: "$1.200" }
+    ],
+    ingredientsTotal: "$6.500"
+  },
+  {
+    id: 2,
+    name: "Pizza Vegana de Masa Madre",
+    restaurant: "Vegan & Safe",
+    type: "Vegano / Plant Based",
+    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
+    price: "$9.200",
+    ingredients: [
+      { name: "Masa madre precocida", price: "$3.000" },
+      { name: "Queso de almendras", price: "$2.500" },
+      { name: "Salsa de tomate", price: "$1.200" },
+      { name: "Albahaca fresca", price: "$500" }
+    ],
+    ingredientsTotal: "$7.200"
+  }
+];
 
 export default function HomeTab({ onSwitchMode }: HomeTabProps) {
   // --- LECTURA DE DATOS DEL ONBOARDING (SIMULACIÓN PARA EL MVP) ---
@@ -19,6 +53,9 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
   const [showAiSuccess, setShowAiSuccess] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   
+  // Estado para controlar el modal de "Solicitar Receta"
+  const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
+
   // Referencia para limitar el área de arrastre del botón del bot
   const dragConstraintsRef = useRef<HTMLDivElement>(null);
 
@@ -44,42 +81,36 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
   const carouselItems = recommendedRestaurants.length > 0 ? recommendedRestaurants.slice(0, 5) : MOCK_RESTAURANTS.slice(0, 5);
   const listItems = MOCK_RESTAURANTS.filter(r => !carouselItems.find(c => c.id === r.id)); // El resto para la lista vertical
 
-  // --- 1. CONFIGURACIÓN DEL DEMO DAY (LA LÓGICA) ---
-  const targetDate = new Date("2026-11-07T11:00:00").getTime(); 
-  
-  const [timeLeft, setTimeLeft] = useState({
-    meses: 0, dias: 0, horas: 0, minutos: 0, segundos: 0
-  });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const dayInMs = 1000 * 60 * 60 * 24;
-      const monthInMs = dayInMs * 30.44;
-      
-      const difference = targetDate - now;
-
-      if (difference > 0) {
-        // Cálculo preciso: 1000ms * 60s * 60m * 24h
-        const dayInMs = 1000 * 60 * 60 * 24;
-        const monthInMs = dayInMs * 30.44;
-
-        setTimeLeft({
-          meses: Math.floor(difference / monthInMs),
-          dias: Math.floor((difference % monthInMs) / dayInMs),
-          horas: Math.floor((difference % dayInMs) / (1000 * 60 * 60)),
-          minutos: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          segundos: Math.floor((difference % (1000 * 60)) / 1000),
-        });
-      } else {
-      }
-
-      if (difference <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [targetDate]);
+  // --- ADS PROMOCIONALES (CREATIVIDAD MOCK) ---
+  const promotionalAds = [
+    {
+      id: 1,
+      brand: "McDonald's",
+      title: "25% OFF",
+      desc: "En tu combo verificado Sin TACC.",
+      color: "from-red-500 to-rose-600",
+      shadow: "shadow-red-500/20",
+      emoji: "🍟"
+    },
+    {
+      id: 2,
+      brand: "Carrefour",
+      title: "3x2 Plant Based",
+      desc: "En toda la sección vegana.",
+      color: "from-blue-600 to-indigo-600",
+      shadow: "shadow-blue-500/20",
+      emoji: "🛒"
+    },
+    {
+      id: 3,
+      brand: "Starbucks",
+      title: "Upgrade Gratis",
+      desc: "Leche de almendras sin cargo adicional.",
+      color: "from-emerald-600 to-teal-700",
+      shadow: "shadow-emerald-500/20",
+      emoji: "☕"
+    }
+  ];
 
   // MOCK DE NOTIFICACIONES (Estratégico para PM)
   const notifications = [
@@ -136,49 +167,43 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
           </div>
         </div>
 
-        {/* 🚀 BANNER DEMO DAY PICKI (LO NUEVO) */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="mx-6 mt-6 p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-lg shadow-slate-900/20 border border-white/10 relative overflow-hidden"
-        >
-          {/* Decoración de fondo */}
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#009688] opacity-30 blur-3xl rounded-full" />
-          
-          <div className="flex items-center justify-between mb-3 relative z-10">
-            <div className="flex items-center gap-2">
-              <div className="bg-gradient-to-tr from-[#009688] to-emerald-400 p-1.5 rounded-lg shadow-lg shadow-[#009688]/40">
-                <Rocket className="w-3.5 h-3.5 text-white" />
-              </div>
-              <div>
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] block">Countdown</span>
-                <span className="text-xs font-bold text-white uppercase">DEMO DAY MVP</span>
-              </div>
-            </div>
-            <div className="bg-white/5 px-2 py-1 rounded-md border border-white/10">
-              <span className="text-[9px] font-bold text-[#009688]">7 NOV • 11:00 AM</span>
-            </div>
-          </div>
+        {/* 📢 CARRUSEL DE PUBLICIDADES Y PROMOCIONES (AUTO-SCROLLING MARQUEE) */}
+        <div className="mt-6 overflow-hidden relative w-full pb-2">
+          {/* Gradientes laterales para suavizar la entrada y salida (Efecto fade) */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-50 to-transparent z-20 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-50 to-transparent z-20 pointer-events-none" />
 
-          <div className="grid grid-cols-5 gap-1.5 relative z-10">
-            {[
-              { label: "Mes", val: timeLeft.meses },
-              { label: "Días", val: timeLeft.dias },
-              { label: "Hs", val: timeLeft.horas },
-              { label: "Min", val: timeLeft.minutos },
-              { label: "Seg", val: timeLeft.segundos },
-            ].map((item, i) => (
-              <div key={i} className="bg-white/5 backdrop-blur-sm rounded-xl py-2 border border-white/5 flex flex-col items-center">
-                <span className="text-lg font-black text-white tabular-nums tracking-tighter leading-none mb-0.5">
-                  {String(item.val).padStart(2, '0')}
-                </span>
-                <span className="text-[7px] font-black text-[#009688] uppercase tracking-[0.2em]">
-                  {item.label}
-                </span>
+          <motion.div
+            className="flex w-max"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ ease: "linear", duration: 30, repeat: Infinity }}
+          >
+            {/* Multiplicamos el arreglo varias veces para que cubra pantallas grandes sin cortarse */}
+            {[...promotionalAds, ...promotionalAds, ...promotionalAds, ...promotionalAds].map((ad, index) => (
+              <div
+                key={`${ad.id}-${index}`}
+                className={`w-[320px] md:w-[420px] mr-4 bg-gradient-to-br ${ad.color} p-5 rounded-3xl shadow-lg ${ad.shadow} relative overflow-hidden cursor-pointer flex-shrink-0`}
+              >
+                {/* Decoración de fondo (Emoji gigante semi-transparente) */}
+                <div className="absolute -right-2 -bottom-2 text-7xl opacity-20 rotate-12 select-none pointer-events-none">
+                  {ad.emoji}
+                </div>
+                
+                <div className="relative z-10">
+                  <span className="bg-white/20 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">
+                    {ad.brand}
+                  </span>
+                  <h3 className="text-2xl font-black text-white mt-3 leading-tight tracking-tight">
+                    {ad.title}
+                  </h3>
+                  <p className="text-white/90 text-xs font-medium mt-1 w-[85%] leading-relaxed">
+                    {ad.desc}
+                  </p>
+                </div>
               </div>
             ))}
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* 🤖 AI INSIGHT: RECOMENDACIÓN DEL DÍA */}
         <div className="px-6 mt-8">
@@ -302,26 +327,28 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
           </div>
         </div>
 
-        {/* --- 7. TODOS LOS RESTAURANTES (LISTA VERTICAL) --- */}
+        {/* --- 7. PLATOS Y RECETAS (REEMPLAZA A TODOS LOS RESTAURANTES) --- */}
         <div className="px-6 mt-6 pb-8">
-          <h4 className="text-lg font-bold text-slate-900 mb-4">Cerca tuyo</h4>
+          <h4 className="text-lg font-bold text-slate-900 mb-4">Platos y recetas cerca tuyo</h4>
           <div className="flex flex-col gap-4">
-            {listItems.map((restaurant) => (
-              <div key={restaurant.id} className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex gap-4">
-                <img src={restaurant.image} alt={restaurant.name} className="w-24 h-24 rounded-xl object-cover" />
-                <div className="flex-1 py-1">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-slate-900 leading-tight">{restaurant.name}</h3>
-                    <div className="flex items-center gap-1 bg-amber-50 px-1.5 py-0.5 rounded text-amber-600">
-                      <Star className="w-3 h-3 fill-current" />
-                      <span className="text-[10px] font-bold">{restaurant.rating}</span>
+            {MOCK_RECIPES.map((recipe) => (
+              <div key={recipe.id} className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 flex gap-4 relative overflow-hidden">
+                <img src={recipe.image} alt={recipe.name} className="w-24 h-24 rounded-xl object-cover" />
+                <div className="flex-1 py-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-slate-900 leading-tight pr-2 text-sm">{recipe.name}</h3>
+                    <p className="text-xs text-slate-500">{recipe.restaurant}</p>
+                    <div className="flex items-center gap-1 text-[#009688] mt-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-bold">{recipe.type}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-[#009688] mb-2">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span className="text-xs font-bold">{restaurant.type}</span>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-black text-slate-800 text-sm">{recipe.price}</span>
+                    <button onClick={() => setSelectedRecipe(recipe)} className="bg-violet-600 text-white text-[10px] font-bold px-4 py-2 rounded-xl active:scale-95 transition-all shadow-md shadow-violet-600/20">
+                      Solicitar
+                    </button>
                   </div>
-                  <p className="text-[11px] text-slate-400 font-medium">A {(Math.random() * 5 + 0.5).toFixed(1)} km de tu ubicación</p>
                 </div>
               </div>
             ))}
@@ -400,6 +427,85 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
                     )}
                   </div>
                 ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+
+        {/* --- MODAL DE RECETA / COMPRA (BOTTOM SHEET) --- */}
+        {selectedRecipe && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedRecipe(null)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[6000]"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed bottom-0 left-0 right-0 max-h-[85vh] bg-slate-50 z-[6001] rounded-t-[32px] shadow-2xl flex flex-col overflow-hidden"
+            >
+              <div className="p-6 bg-white border-b border-slate-100 shrink-0 relative">
+                <button onClick={() => setSelectedRecipe(null)} className="absolute top-6 right-6 p-2 bg-slate-100 rounded-full text-slate-500 active:scale-95">
+                  <X className="w-4 h-4" />
+                </button>
+                <span className="bg-violet-100 text-violet-700 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider mb-2 inline-block">Tu pedido</span>
+                <h3 className="font-black text-2xl text-slate-900 leading-tight pr-8">{selectedRecipe.name}</h3>
+                <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" /> Enviar a: Tu dirección actual
+                </p>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                {/* Opción 1: Plato Listo */}
+                <div className="bg-white p-5 rounded-3xl border-2 border-violet-500 shadow-lg shadow-violet-500/10 relative">
+                  <div className="absolute -top-3 left-4 bg-violet-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">Opción 1</div>
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-black text-lg text-slate-800">Plato Listo para Comer</h4>
+                      <p className="text-xs font-medium text-slate-500 mt-0.5">Preparado por {selectedRecipe.restaurant}</p>
+                    </div>
+                    <span className="font-black text-xl text-violet-600">{selectedRecipe.price}</span>
+                  </div>
+                  <button className="w-full mt-4 bg-violet-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md shadow-violet-600/20">
+                    Pedir Plato Listo <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Opción 2: Ingredientes (Cocínalo tú mismo) */}
+                <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm relative">
+                  <div className="absolute -top-3 left-4 bg-slate-200 text-slate-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Opción 2</div>
+                  <div className="flex justify-between items-start mb-4 mt-2">
+                    <div>
+                      <h4 className="font-black text-lg text-slate-800">Cocínalo tú mismo</h4>
+                      <p className="text-[11px] font-medium text-slate-500 mt-0.5 flex items-center gap-1">
+                        <ShoppingBag className="w-3 h-3" /> Compra los ingredientes exactos
+                      </p>
+                    </div>
+                    <span className="font-black text-xl text-slate-800">{selectedRecipe.ingredientsTotal}</span>
+                  </div>
+                  
+                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-4">
+                    <ul className="space-y-2.5">
+                      {selectedRecipe.ingredients.map((ing: any, i: number) => (
+                        <li key={i} className="flex justify-between items-center text-sm">
+                          <span className="font-medium text-slate-700 flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> {ing.name}
+                          </span>
+                          <span className="font-bold text-slate-500">{ing.price}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <button className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md">
+                    Comprar Ingredientes <ShoppingBag className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </motion.div>
           </>
