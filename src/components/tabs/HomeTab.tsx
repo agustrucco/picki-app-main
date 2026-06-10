@@ -38,6 +38,51 @@ const MOCK_RECIPES = [
       { name: "Albahaca fresca", price: "$500" }
     ],
     ingredientsTotal: "$7.200"
+  },
+  {
+    id: 3,
+    name: "Hamburguesa Doble Smash",
+    restaurant: "CeliBurger",
+    type: "100% Libre de Gluten",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",
+    price: "$10.500",
+    ingredients: [
+      { name: "Pan de papa sin TACC", price: "$2.500" },
+      { name: "Medallones de carne x2", price: "$4.000" },
+      { name: "Queso cheddar", price: "$1.500" },
+      { name: "Bacon crujiente", price: "$1.500" }
+    ],
+    ingredientsTotal: "$9.500"
+  },
+  {
+    id: 4,
+    name: "Ensalada Falafel Kosher",
+    restaurant: "Jerusalem Deli",
+    type: "Kosher Certificado",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80",
+    price: "$7.800",
+    ingredients: [
+      { name: "Falafel certificado", price: "$3.500" },
+      { name: "Mix de hojas verdes", price: "$1.000" },
+      { name: "Salsa Tahini", price: "$1.200" },
+      { name: "Tomates cherry", price: "$800" }
+    ],
+    ingredientsTotal: "$6.500"
+  },
+  {
+    id: 5,
+    name: "Brownie de Chocolate",
+    restaurant: "Sweet & Safe",
+    type: "Sin Lácteos",
+    image: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400&q=80",
+    price: "$4.500",
+    ingredients: [
+      { name: "Harina de almendras", price: "$1.800" },
+      { name: "Cacao puro", price: "$1.200" },
+      { name: "Aceite de coco", price: "$900" },
+      { name: "Nueces picadas", price: "$500" }
+    ],
+    ingredientsTotal: "$4.400"
   }
 ];
 
@@ -78,7 +123,17 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
     return true; // Si es otra dieta, mostramos todo
   });
 
-  const carouselItems = recommendedRestaurants.length > 0 ? recommendedRestaurants.slice(0, 5) : MOCK_RESTAURANTS.slice(0, 5);
+  // Aseguramos tener al menos 10 opciones para la demostración (duplicando si la BD mock es pequeña)
+  let baseItems = recommendedRestaurants.length > 0 ? recommendedRestaurants : MOCK_RESTAURANTS;
+  let carouselItems = [...baseItems];
+  let multiplier = 1;
+  while (carouselItems.length > 0 && carouselItems.length < 10) {
+    const clones = baseItems.map(r => ({ ...r, id: r.id + (1000 * multiplier) }));
+    carouselItems = [...carouselItems, ...clones];
+    multiplier++;
+  }
+  carouselItems = carouselItems.slice(0, 10);
+
   const listItems = MOCK_RESTAURANTS.filter(r => !carouselItems.find(c => c.id === r.id)); // El resto para la lista vertical
 
   // --- ADS PROMOCIONALES (CREATIVIDAD MOCK) ---
@@ -299,31 +354,39 @@ export default function HomeTab({ onSwitchMode }: HomeTabProps) {
           </div>
 
           <div className="flex gap-4 overflow-x-auto pb-4 pr-6 snap-x [&::-webkit-scrollbar]:hidden">
-            {carouselItems.map((restaurant) => (
-              <div key={restaurant.id} className="min-w-[240px] bg-white rounded-3xl p-3 border border-slate-100 shadow-sm snap-start">
-                <div className="relative">
-                  <img src={restaurant.image} alt={restaurant.name} className="w-full h-32 object-cover rounded-2xl mb-3" />
-                  
-                  {/* ✨ BADGE DE AI MATCH */}
-                  <div className="absolute top-2 left-2 bg-violet-600/95 backdrop-blur-sm px-2 py-1.5 rounded-lg flex items-center gap-1 shadow-md border border-white/10 z-10">
-                    <Sparkles className="w-3 h-3 text-violet-100" />
-                    <span className="text-[10px] font-black text-white tracking-wide">
-                      {99 - (restaurant.id % 4)}% SEGURO
-                    </span>
-                  </div>
+            {carouselItems.map((restaurant, index) => {
+              // Generamos la categoría en base al índice para asegurar que haya variedad visual siempre
+              const safetyLevel = index % 3;
+              const bgColors = ["bg-emerald-600/95", "bg-amber-500/95", "bg-rose-600/95"];
+              const textColors = ["text-emerald-100", "text-amber-100", "text-rose-100"];
+              const labels = ["Seguro", "Poco seguro", "No confiable"];
 
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                    <span className="text-[10px] font-bold text-slate-700">{restaurant.rating}</span>
+              return (
+                <div key={restaurant.id} className="min-w-[240px] bg-white rounded-3xl p-3 border border-slate-100 shadow-sm snap-start">
+                  <div className="relative">
+                    <img src={restaurant.image} alt={restaurant.name} className="w-full h-32 object-cover rounded-2xl mb-3" />
+                    
+                    {/* ✨ BADGE DE AI MATCH (CATEGORÍAS) */}
+                    <div className={`absolute top-2 left-2 ${bgColors[safetyLevel]} backdrop-blur-sm px-2 py-1.5 rounded-lg flex items-center gap-1 shadow-md border border-white/10 z-10`}>
+                      <Sparkles className={`w-3 h-3 ${textColors[safetyLevel]}`} />
+                      <span className="text-[10px] font-black text-white tracking-wide uppercase">
+                        {labels[safetyLevel]}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <span className="text-[10px] font-bold text-slate-700">{restaurant.rating}</span>
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base leading-tight mb-1">{restaurant.name}</h3>
+                  <div className="flex items-center gap-1.5 text-[#009688]">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span className="text-xs font-bold">{restaurant.type}</span>
                   </div>
                 </div>
-                <h3 className="font-bold text-slate-900 text-base leading-tight mb-1">{restaurant.name}</h3>
-                <div className="flex items-center gap-1.5 text-[#009688]">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span className="text-xs font-bold">{restaurant.type}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
